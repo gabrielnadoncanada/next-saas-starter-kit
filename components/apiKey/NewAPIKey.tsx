@@ -1,6 +1,6 @@
 import { InputWithCopyButton, InputWithLabel } from '@/components/shared';
 import type { Team } from '@prisma/client';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Button } from 'react-daisyui';
 import { toast } from 'react-hot-toast';
@@ -8,7 +8,8 @@ import { useSWRConfig } from 'swr';
 import type { ApiResponse } from 'types';
 import Modal from '../shared/Modal';
 import { defaultHeaders } from '@/lib/common';
-import { useFormik } from 'formik';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { createApiKeySchema } from '@/lib/zod';
 
@@ -45,61 +46,60 @@ const NewAPIKey = ({
   );
 };
 
+type CreateApiKeyFormData = z.infer<typeof createApiKeySchema>;
+
 const CreateAPIKeyForm = ({
   team,
   onNewAPIKey,
   closeModal,
 }: CreateAPIKeyFormProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
-  const formik = useFormik<z.infer<typeof createApiKeySchema>>({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty, isValid },
+  } = useForm<CreateApiKeyFormData>({
+    resolver: zodResolver(createApiKeySchema),
+    defaultValues: {
       name: '',
     },
-    validateOnBlur: false,
-    validate: (values) => {
-      try {
-        createApiKeySchema.parse(values);
-      } catch (error: any) {
-        return error.formErrors.fieldErrors;
-      }
-    },
-    onSubmit: async (values) => {
-      const response = await fetch(`/api/teams/${team.slug}/api-keys`, {
-        method: 'POST',
-        body: JSON.stringify(values),
-        headers: defaultHeaders,
-      });
-
-      const { data, error } = (await response.json()) as ApiResponse<{
-        apiKey: string;
-      }>;
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (data.apiKey) {
-        onNewAPIKey(data.apiKey);
-        toast.success(t('api-key-created'));
-      }
-    },
+    mode: 'onChange',
   });
 
+  const onSubmit = async (values: CreateApiKeyFormData) => {
+    const response = await fetch(`/api/teams/${team.slug}/api-keys`, {
+      method: 'POST',
+      body: JSON.stringify(values),
+      headers: defaultHeaders,
+    });
+
+    const { data, error } = (await response.json()) as ApiResponse<{
+      apiKey: string;
+    }>;
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (data.apiKey) {
+      onNewAPIKey(data.apiKey);
+      toast.success(t('api-key-created'));
+    }
+  };
+
   return (
-    <form onSubmit={formik.handleSubmit} method="POST">
+    <form onSubmit={handleSubmit(onSubmit)} method="POST">
       <Modal.Header>{t('new-api-key')}</Modal.Header>
       <Modal.Description>{t('api-key-description')}</Modal.Description>
       <Modal.Body>
         <InputWithLabel
+          {...register('name')}
           label={t('name')}
-          name="name"
-          value={formik.values.name}
-          onChange={formik.handleChange}
           placeholder="My API Key"
           className="text-sm"
-          error={formik.errors.name}
+          error={errors.name?.message}
         />
       </Modal.Body>
       <Modal.Footer>
@@ -109,8 +109,8 @@ const CreateAPIKeyForm = ({
         <Button
           color="primary"
           type="submit"
-          loading={formik.isSubmitting}
-          disabled={!formik.dirty || !formik.isValid}
+          loading={isSubmitting}
+          disabled={!isDirty || !isValid}
           size="md"
         >
           {t('create-api-key')}
@@ -121,7 +121,7 @@ const CreateAPIKeyForm = ({
 };
 
 const DisplayAPIKey = ({ apiKey, closeModal }: DisplayAPIKeyProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   return (
     <>

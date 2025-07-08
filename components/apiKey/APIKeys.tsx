@@ -1,7 +1,7 @@
 import { EmptyState, WithLoadingAndError } from '@/components/shared';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog';
 import type { ApiKey, Team } from '@prisma/client';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Button } from 'react-daisyui';
 import { toast } from 'react-hot-toast';
@@ -15,7 +15,7 @@ interface APIKeysProps {
 }
 
 const APIKeys = ({ team }: APIKeysProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { data, isLoading, error, mutate } = useAPIKeys(team.slug);
   const [selectedApiKey, setSelectedApiKey] = useState<ApiKey | null>(null);
   const [createModalVisible, setCreateModalVisible] = useState(false);

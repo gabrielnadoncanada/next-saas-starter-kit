@@ -1,14 +1,16 @@
+'use client';
+
 import { LetterAvatar } from '@/components/shared';
 import { defaultHeaders } from '@/lib/common';
 import { Team } from '@prisma/client';
 import useTeams from 'hooks/useTeams';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Button } from 'react-daisyui';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ConfirmationDialog from '../shared/ConfirmationDialog';
 import { WithLoadingAndError } from '@/components/shared';
 import { CreateTeam } from '@/components/team';
@@ -16,13 +18,14 @@ import { Table } from '@/components/shared/table/Table';
 
 const Teams = () => {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const searchParams = useSearchParams();
+  const t = useTranslations();
   const [team, setTeam] = useState<Team | null>(null);
   const { isLoading, isError, teams, mutateTeams } = useTeams();
   const [askConfirmation, setAskConfirmation] = useState(false);
   const [createTeamVisible, setCreateTeamVisible] = useState(false);
 
-  const { newTeam } = router.query as { newTeam: string };
+  const newTeam = searchParams.get('newTeam');
 
   useEffect(() => {
     if (newTeam) {

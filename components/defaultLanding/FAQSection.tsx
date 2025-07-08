@@ -1,10 +1,10 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { Card } from 'react-daisyui';
 
 import faqs from './data/faq.json';
 
 const FAQSection = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   return (
     <section className="py-6">
       <div className="flex flex-col justify-center space-y-6">

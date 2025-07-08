@@ -2,7 +2,7 @@ import { Error, LetterAvatar, Loading } from '@/components/shared';
 import { defaultHeaders } from '@/lib/common';
 import { Team } from '@prisma/client';
 import useInvitations from 'hooks/useInvitations';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
@@ -22,7 +22,7 @@ const PendingInvitations = ({ team }: { team: Team }) => {
     sentViaEmail: true,
   });
 
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   if (isLoading) {
     return <Loading />;
@@ -119,7 +119,7 @@ const PendingInvitations = ({ team }: { team: Team }) => {
         title={t('confirm-delete-member-invitation')}
       >
         {t('delete-member-invitation-warning', {
-          email: selectedInvitation?.email,
+          email: selectedInvitation?.email || '',
         })}
       </ConfirmationDialog>
     </div>

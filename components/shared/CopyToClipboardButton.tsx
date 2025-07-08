@@ -1,6 +1,6 @@
 import { copyToClipboard } from '@/lib/common';
 import { ClipboardDocumentIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { Button } from 'react-daisyui';
 import { toast } from 'react-hot-toast';
 
@@ -9,7 +9,7 @@ interface CopyToClipboardProps {
 }
 
 const CopyToClipboardButton = ({ value }: CopyToClipboardProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const handleCopy = () => {
     copyToClipboard(value);

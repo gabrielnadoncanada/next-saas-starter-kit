@@ -1,94 +1,107 @@
+'use client';
+
 import { InputWithLabel } from '@/components/shared';
-import {
-  defaultHeaders,
-  maxLengthPolicies,
-  passwordPolicies,
-} from '@/lib/common';
-import { useFormik } from 'formik';
-import { useTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
+import { defaultHeaders } from '@/lib/common';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { resetPasswordSchema } from '@/lib/zod';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from 'react-daisyui';
+import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import type { ApiResponse } from 'types';
-import * as Yup from 'yup';
+import { z } from 'zod';
 
-const ResetPassword = () => {
+interface ResetPasswordProps {
+  token: string;
+}
+
+const resetFormSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, 'Password must have at least 8 characters')
+      .max(100, 'Password should have at most 100 characters'),
+    confirmPassword: z
+      .string()
+      .max(100, 'Password should have at most 100 characters'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords must match',
+    path: ['confirmPassword'],
+  });
+
+type ResetPasswordFormData = z.infer<typeof resetFormSchema>;
+
+const ResetPassword = ({ token }: ResetPasswordProps) => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const router = useRouter();
-  const { t } = useTranslation('common');
-  const { token } = router.query as { token: string };
+  const t = useTranslations();
 
-  const formik = useFormik({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty, touchedFields },
+    reset,
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetFormSchema),
+    defaultValues: {
       password: '',
       confirmPassword: '',
     },
-    validationSchema: Yup.object().shape({
-      password: Yup.string()
-        .required()
-        .min(passwordPolicies.minLength)
-        .max(maxLengthPolicies.password),
-      confirmPassword: Yup.string()
-        .max(maxLengthPolicies.password)
-        .test(
-          'passwords-match',
-          'Passwords must match',
-          (value, context) => value === context.parent.password
-        ),
-    }),
-    onSubmit: async (values) => {
-      setSubmitting(true);
-
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: defaultHeaders,
-        body: JSON.stringify({
-          ...values,
-          token,
-        }),
-      });
-
-      const json = (await response.json()) as ApiResponse;
-
-      setSubmitting(false);
-
-      if (!response.ok) {
-        toast.error(json.error.message);
-        return;
-      }
-
-      formik.resetForm();
-      toast.success(t('password-updated'));
-      router.push('/auth/login');
-    },
+    mode: 'onChange',
   });
+
+  const onSubmit = async (values: ResetPasswordFormData) => {
+    setSubmitting(true);
+
+    const response = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({
+        password: values.password,
+        token,
+      }),
+    });
+
+    const json = (await response.json()) as ApiResponse;
+
+    setSubmitting(false);
+
+    if (!response.ok) {
+      toast.error(json.error.message);
+      return;
+    }
+
+    reset();
+    toast.success(t('password-updated'));
+    router.push('/auth/login');
+  };
 
   return (
     <div className="rounded p-6 border">
-      <form onSubmit={formik.handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-2">
           <InputWithLabel
+            {...register('password')}
             type="password"
             label={t('new-password')}
-            name="password"
             placeholder={t('new-password')}
-            value={formik.values.password}
-            error={formik.touched.password ? formik.errors.password : undefined}
-            onChange={formik.handleChange}
+            error={
+              touchedFields.password ? errors.password?.message : undefined
+            }
           />
           <InputWithLabel
+            {...register('confirmPassword')}
             type="password"
             label={t('confirm-password')}
-            name="confirmPassword"
             placeholder={t('confirm-password')}
-            value={formik.values.confirmPassword}
             error={
-              formik.touched.confirmPassword
-                ? formik.errors.confirmPassword
+              touchedFields.confirmPassword
+                ? errors.confirmPassword?.message
                 : undefined
             }
-            onChange={formik.handleChange}
           />
         </div>
         <div className="mt-4">
@@ -96,7 +109,7 @@ const ResetPassword = () => {
             type="submit"
             color="primary"
             loading={submitting}
-            active={formik.dirty}
+            active={isDirty}
             fullWidth
             size="md"
           >

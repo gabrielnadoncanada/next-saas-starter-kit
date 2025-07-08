@@ -3,12 +3,12 @@ import {
   ShieldCheckIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import NavigationItems from './NavigationItems';
 import { MenuItem, NavigationProps } from './NavigationItems';
 
 const UserNavigation = ({ activePathname }: NavigationProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const menus: MenuItem[] = [
     {

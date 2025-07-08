@@ -1,5 +1,5 @@
 import { Button } from 'react-daisyui';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { useCustomSignOut } from 'hooks/useCustomSignout';
 
 interface EmailMismatchProps {
@@ -7,7 +7,7 @@ interface EmailMismatchProps {
 }
 
 const EmailMismatch = ({ email }: EmailMismatchProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const signOut = useCustomSignOut();
 
   return (

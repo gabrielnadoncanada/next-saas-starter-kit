@@ -1,6 +1,6 @@
 import { Button } from 'react-daisyui';
 import Badge from '@/components/shared/Badge';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 const trClass =
   'border-b bg-white last:border-b-0 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800';
@@ -44,7 +44,7 @@ export const TableBody = ({
   body: TableBodyType[];
   noMoreResults?: boolean;
 }) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   if (noMoreResults) {
     return (

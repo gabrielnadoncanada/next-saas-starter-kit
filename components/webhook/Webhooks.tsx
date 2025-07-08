@@ -2,7 +2,7 @@ import { WithLoadingAndError } from '@/components/shared';
 import { EmptyState } from '@/components/shared';
 import { Team } from '@prisma/client';
 import useWebhooks from 'hooks/useWebhooks';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 import { Button } from 'react-daisyui';
 import toast from 'react-hot-toast';
@@ -15,7 +15,7 @@ import ConfirmationDialog from '../shared/ConfirmationDialog';
 import { Table } from '@/components/shared/table/Table';
 
 const Webhooks = ({ team }: { team: Team }) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const [createWebhookVisible, setCreateWebhookVisible] = useState(false);
   const [updateWebhookVisible, setUpdateWebhookVisible] = useState(false);
   const [endpoint, setEndpoint] = useState<EndpointOut | null>(null);

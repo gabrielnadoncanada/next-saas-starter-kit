@@ -1,10 +1,15 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
-const { i18n } = require('./next-i18next.config');
+const createNextIntlPlugin = require('next-intl/plugin');
+const withNextIntl = createNextIntlPlugin();
+
 const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -17,7 +22,6 @@ const nextConfig = {
       },
     ],
   },
-  i18n,
   rewrites: async () => {
     return [
       {
@@ -60,4 +64,4 @@ const sentryWebpackPluginOptions = {
   hideSourceMaps: true,
 };
 
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+module.exports = withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions);

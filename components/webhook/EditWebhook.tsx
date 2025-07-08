@@ -1,9 +1,8 @@
 import { Error, Loading } from '@/components/shared';
 import type { Team } from '@prisma/client';
-import type { FormikHelpers } from 'formik';
 import useWebhook from 'hooks/useWebhook';
 import useWebhooks from 'hooks/useWebhooks';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import React from 'react';
 import toast from 'react-hot-toast';
 import type { EndpointOut } from 'svix';
@@ -25,7 +24,7 @@ const EditWebhook = ({
   endpoint: EndpointOut;
 }) => {
   const { isLoading, isError, webhook } = useWebhook(team.slug, endpoint.id);
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { mutateWebhooks } = useWebhooks(team.slug);
 
   if (isLoading || !webhook) {
@@ -38,7 +37,7 @@ const EditWebhook = ({
 
   const onSubmit = async (
     values: WebhookFormSchema,
-    formikHelpers: FormikHelpers<WebhookFormSchema>
+    helpers: { resetForm: () => void }
   ) => {
     const response = await fetch(
       `/api/teams/${team.slug}/webhooks/${endpoint.id}`,
@@ -59,7 +58,7 @@ const EditWebhook = ({
     toast.success(t('webhook-updated'));
     mutateWebhooks();
     setVisible(false);
-    formikHelpers.resetForm();
+    helpers.resetForm();
   };
 
   return (

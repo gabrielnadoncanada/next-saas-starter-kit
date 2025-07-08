@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import { Button } from 'react-daisyui';
 import { useState } from 'react';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/shared';
 import { Team } from '@prisma/client';
@@ -15,7 +15,7 @@ interface LinkToPortalProps {
 
 const LinkToPortal = ({ team }: LinkToPortalProps) => {
   const [loading, setLoading] = useState(false);
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const openStripePortal = async () => {
     setLoading(true);

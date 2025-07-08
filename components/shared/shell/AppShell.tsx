@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Loading } from '@/components/shared';
 import { useSession } from 'next-auth/react';

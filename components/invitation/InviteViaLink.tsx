@@ -1,16 +1,17 @@
-import * as Yup from 'yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { mutate } from 'swr';
-import { useFormik } from 'formik';
 import toast from 'react-hot-toast';
 import React, { useState } from 'react';
 import { Button, Input } from 'react-daisyui';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Role } from '@prisma/client';
 
 import type { ApiResponse } from 'types';
 import useInvitations from 'hooks/useInvitations';
-import { availableRoles } from '@/lib/permissions';
 import type { Team } from '@prisma/client';
-import { defaultHeaders, isValidDomain, maxLengthPolicies } from '@/lib/common';
+import { defaultHeaders, isValidDomain } from '@/lib/common';
 import { InputWithCopyButton } from '../shared';
 import ConfirmationDialog from '../shared/ConfirmationDialog';
 
@@ -18,60 +19,64 @@ interface InviteViaLinkProps {
   team: Team;
 }
 
+const linkInviteSchema = z.object({
+  domains: z
+    .string()
+    .optional()
+    .refine((domains) => {
+      if (!domains) return true;
+      return domains.split(',').every(isValidDomain);
+    }, 'Enter one or more valid domains, separated by commas.'),
+  role: z.nativeEnum(Role),
+});
+
+type LinkInviteFormData = z.infer<typeof linkInviteSchema>;
+
 const InviteViaLink = ({ team }: InviteViaLinkProps) => {
   const [showDelDialog, setShowDelDialog] = useState(false);
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { invitations } = useInvitations({
     slug: team.slug,
     sentViaEmail: false,
   });
 
-  const FormValidationSchema = Yup.object().shape({
-    domains: Yup.string()
-      .nullable()
-      .max(maxLengthPolicies.domains)
-      .test(
-        'domains',
-        'Enter one or more valid domains, separated by commas.',
-        (value) => {
-          if (!value) {
-            return true;
-          }
-
-          return value.split(',').every(isValidDomain);
-        }
-      ),
-    role: Yup.string()
-      .required(t('required-role'))
-      .oneOf(availableRoles.map((r) => r.id)),
-  });
-
-  // Create a new invitation link
-  const formik = useFormik({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid },
+    reset,
+    watch,
+  } = useForm<LinkInviteFormData>({
+    resolver: zodResolver(linkInviteSchema),
+    defaultValues: {
       domains: '',
-      role: availableRoles[0].id,
-      sentViaEmail: false,
+      role: Role.MEMBER,
     },
-    validationSchema: FormValidationSchema,
-    onSubmit: async (values) => {
-      const response = await fetch(`/api/teams/${team.slug}/invitations`, {
-        method: 'POST',
-        headers: defaultHeaders,
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const result = (await response.json()) as ApiResponse;
-        toast.error(result.error.message);
-        return;
-      }
-
-      mutate(`/api/teams/${team.slug}/invitations?sentViaEmail=false`);
-      toast.success(t('invitation-link-created'));
-      formik.resetForm();
-    },
+    mode: 'onChange',
   });
+
+  const watchedValues = watch();
+
+  const onSubmit = async (values: LinkInviteFormData) => {
+    const response = await fetch(`/api/teams/${team.slug}/invitations`, {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({
+        ...values,
+        sentViaEmail: false,
+      }),
+    });
+
+    if (!response.ok) {
+      const result = (await response.json()) as ApiResponse;
+      toast.error(result.error.message);
+      return;
+    }
+
+    mutate(`/api/teams/${team.slug}/invitations?sentViaEmail=false`);
+    toast.success(t('invitation-link-created'));
+    reset();
+  };
 
   // Delete an existing invitation link
   const deleteInvitationLink = async (id: string) => {
@@ -128,42 +133,36 @@ const InviteViaLink = ({ team }: InviteViaLinkProps) => {
   }
 
   return (
-    <form onSubmit={formik.handleSubmit} method="POST" className="pt-4">
+    <form onSubmit={handleSubmit(onSubmit)} method="POST" className="pt-4">
       <h3 className="font-medium text-[14px] pb-2">{t('invite-via-link')}</h3>
       <div className="flex gap-1">
         <Input
-          name="domains"
-          onChange={formik.handleChange}
-          value={formik.values.domains}
+          {...register('domains')}
           placeholder="Restrict domain: boxyhq.com"
           className="text-sm w-1/2"
         />
         <select
+          {...register('role')}
           className="select-bordered select rounded"
-          name="role"
-          onChange={formik.handleChange}
-          value={formik.values.role}
           required
         >
-          {availableRoles.map((role) => (
-            <option value={role.id} key={role.id}>
-              {role.name}
-            </option>
-          ))}
+          <option value={Role.MEMBER}>{t('member')}</option>
+          <option value={Role.ADMIN}>{t('admin')}</option>
+          <option value={Role.OWNER}>{t('owner')}</option>
         </select>
         <Button
           type="submit"
           color="primary"
-          loading={formik.isSubmitting}
-          disabled={!formik.isValid}
+          loading={isSubmitting}
+          disabled={!isValid}
           className="flex-grow"
         >
           {t('create-link')}
         </Button>
       </div>
       <p className="text-sm text-slate-500 my-2">
-        {formik.values.domains && !formik.errors.domains
-          ? `Anyone with an email address ending with ${formik.values.domains} can use this link to join your team.`
+        {watchedValues.domains && !errors.domains
+          ? `Anyone with an email address ending with ${watchedValues.domains} can use this link to join your team.`
           : 'Anyone can use this link to join your team.'}
       </p>
     </form>

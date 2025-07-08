@@ -1,7 +1,6 @@
 import type { Team } from '@prisma/client';
-import type { FormikHelpers } from 'formik';
 import useWebhooks from 'hooks/useWebhooks';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import React from 'react';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
@@ -20,11 +19,11 @@ const CreateWebhook = ({
   team: Team;
 }) => {
   const { mutateWebhooks } = useWebhooks(team.slug);
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const onSubmit = async (
     values: WebhookFormSchema,
-    formikHelpers: FormikHelpers<WebhookFormSchema>
+    helpers: { resetForm: () => void }
   ) => {
     const response = await fetch(`/api/teams/${team.slug}/webhooks`, {
       method: 'POST',
@@ -42,7 +41,7 @@ const CreateWebhook = ({
     toast.success(t('webhook-created'));
     mutateWebhooks();
     setVisible(false);
-    formikHelpers.resetForm();
+    helpers.resetForm();
   };
 
   return (

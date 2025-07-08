@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { Button } from 'react-daisyui';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 import type { ApiResponse } from 'types';
 import { defaultHeaders } from '@/lib/common';
@@ -13,7 +13,7 @@ interface AcceptInvitationProps {
 
 const AcceptInvitation = ({ invitation }: AcceptInvitationProps) => {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const acceptInvitation = async () => {
     const response = await fetch(

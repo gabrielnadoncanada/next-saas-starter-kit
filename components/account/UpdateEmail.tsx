@@ -1,54 +1,62 @@
-import { useFormik } from 'formik';
+import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
-import { useTranslation } from 'next-i18next';
-import { Button, Input } from 'react-daisyui';
+import { useTranslations } from 'next-intl';
+import { Button } from 'react-daisyui';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import type { ApiResponse } from 'types';
-import { Card } from '@/components/shared';
+import { Card, InputWithLabel } from '@/components/shared';
 import { defaultHeaders } from '@/lib/common';
 import type { User } from '@prisma/client';
-import { updateAccountSchema } from '@/lib/zod';
 
 interface UpdateEmailProps {
   user: Partial<User>;
   allowEmailChange: boolean;
 }
 
+const emailSchema = z.object({
+  email: z
+    .string()
+    .email('Enter a valid email address')
+    .min(1, 'Email is required'),
+});
+
+type UpdateEmailFormData = z.infer<typeof emailSchema>;
+
 const UpdateEmail = ({ user, allowEmailChange }: UpdateEmailProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
-  const formik = useFormik({
-    initialValues: {
-      email: user.email,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty, isValid },
+  } = useForm<UpdateEmailFormData>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: {
+      email: user.email || '',
     },
-    validateOnBlur: false,
-    enableReinitialize: true,
-    validate: (values) => {
-      try {
-        updateAccountSchema.parse(values);
-      } catch (error: any) {
-        return error.formErrors.fieldErrors;
-      }
-    },
-    onSubmit: async (values) => {
-      const response = await fetch('/api/users', {
-        method: 'PUT',
-        headers: defaultHeaders,
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const json = (await response.json()) as ApiResponse;
-        toast.error(json.error.message);
-        return;
-      }
-
-      toast.success(t('successfully-updated'));
-    },
+    mode: 'onChange',
   });
 
+  const onSubmit = async (values: UpdateEmailFormData) => {
+    const response = await fetch('/api/users', {
+      method: 'PUT',
+      headers: defaultHeaders,
+      body: JSON.stringify(values),
+    });
+
+    if (!response.ok) {
+      const json = (await response.json()) as ApiResponse;
+      toast.error(json.error.message);
+      return;
+    }
+
+    toast.success(t('successfully-updated'));
+  };
+
   return (
-    <form onSubmit={formik.handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Card>
         <Card.Body>
           <Card.Header>
@@ -57,23 +65,22 @@ const UpdateEmail = ({ user, allowEmailChange }: UpdateEmailProps) => {
               {t('email-address-description')}
             </Card.Description>
           </Card.Header>
-          <Input
+          <InputWithLabel
+            {...register('email')}
             type="email"
-            name="email"
+            label={t('email-address')}
             placeholder={t('your-email')}
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            className="w-full max-w-md"
-            required
+            error={errors.email?.message}
             disabled={!allowEmailChange}
+            required
           />
         </Card.Body>
         <Card.Footer>
           <Button
             type="submit"
             color="primary"
-            loading={formik.isSubmitting}
-            disabled={!formik.dirty || !formik.isValid}
+            loading={isSubmitting}
+            disabled={!isDirty || !isValid}
             size="md"
           >
             {t('save-changes')}

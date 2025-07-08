@@ -1,7 +1,9 @@
+'use client';
+
 import { Card } from '@/components/shared';
 import { Team } from '@prisma/client';
-import { useTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { Button } from 'react-daisyui';
 import toast from 'react-hot-toast';
@@ -17,7 +19,7 @@ interface RemoveTeamProps {
 
 const RemoveTeam = ({ team, allowDelete }: RemoveTeamProps) => {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const [loading, setLoading] = useState(false);
   const [askConfirmation, setAskConfirmation] = useState(false);
 

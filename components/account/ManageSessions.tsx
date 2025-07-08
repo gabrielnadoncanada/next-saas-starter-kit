@@ -1,6 +1,8 @@
+'use client';
+
 import useSWR from 'swr';
 import { useState } from 'react';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { ComputerDesktopIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -13,7 +15,7 @@ import { Table } from '@/components/shared/table/Table';
 type NextAuthSession = Session & { isCurrent: boolean };
 
 const ManageSessions = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const [askConfirmation, setAskConfirmation] = useState(false);
   const [sessionToDelete, setSessionToDelete] =
     useState<NextAuthSession | null>(null);

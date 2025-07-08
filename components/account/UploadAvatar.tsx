@@ -1,6 +1,8 @@
+'use client';
+
 import toast from 'react-hot-toast';
 import { Button } from 'react-daisyui';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowUpCircleIcon } from '@heroicons/react/24/outline';
 
@@ -10,7 +12,7 @@ import { Card } from '@/components/shared';
 import { defaultHeaders } from '@/lib/common';
 
 const UploadAvatar = ({ user }: { user: Partial<User> }) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const [dragActive, setDragActive] = useState(false);
   const [image, setImage] = useState<string | null>();
   const [loading, setLoading] = useState(false);

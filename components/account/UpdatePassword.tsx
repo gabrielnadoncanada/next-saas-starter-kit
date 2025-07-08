@@ -1,52 +1,54 @@
-import { useFormik } from 'formik';
-import { useTranslation } from 'next-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { Button } from 'react-daisyui';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import * as Yup from 'yup';
+import { z } from 'zod';
 
 import { Card, InputWithLabel } from '@/components/shared';
-import { defaultHeaders, passwordPolicies } from '@/lib/common';
-import { maxLengthPolicies } from '@/lib/common';
+import { defaultHeaders } from '@/lib/common';
+import { updatePasswordSchema } from '@/lib/zod';
 
-const schema = Yup.object().shape({
-  currentPassword: Yup.string().required().max(maxLengthPolicies.password),
-  newPassword: Yup.string()
-    .required()
-    .min(passwordPolicies.minLength)
-    .max(maxLengthPolicies.password),
-});
+type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
 
 const UpdatePassword = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
-  const formik = useFormik({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty, isValid, touchedFields },
+    reset,
+  } = useForm<UpdatePasswordFormData>({
+    resolver: zodResolver(updatePasswordSchema),
+    defaultValues: {
       currentPassword: '',
       newPassword: '',
     },
-    validationSchema: schema,
-    onSubmit: async (values) => {
-      const response = await fetch('/api/password', {
-        method: 'PUT',
-        headers: defaultHeaders,
-        body: JSON.stringify(values),
-      });
-
-      const json = await response.json();
-
-      if (!response.ok) {
-        toast.error(json.error.message);
-        return;
-      }
-
-      toast.success(t('successfully-updated'));
-      formik.resetForm();
-    },
+    mode: 'onChange',
   });
+
+  const onSubmit = async (values: UpdatePasswordFormData) => {
+    const response = await fetch('/api/password', {
+      method: 'PUT',
+      headers: defaultHeaders,
+      body: JSON.stringify(values),
+    });
+
+    const json = await response.json();
+
+    if (!response.ok) {
+      toast.error(json.error.message);
+      return;
+    }
+
+    toast.success(t('successfully-updated'));
+    reset();
+  };
 
   return (
     <>
-      <form onSubmit={formik.handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Card>
           <Card.Body>
             <Card.Header>
@@ -55,31 +57,27 @@ const UpdatePassword = () => {
             </Card.Header>
             <div className="flex flex-col space-y-3">
               <InputWithLabel
+                {...register('currentPassword')}
                 type="password"
                 label={t('current-password')}
-                name="currentPassword"
                 placeholder={t('current-password')}
-                value={formik.values.currentPassword}
                 error={
-                  formik.touched.currentPassword
-                    ? formik.errors.currentPassword
+                  touchedFields.currentPassword
+                    ? errors.currentPassword?.message
                     : undefined
                 }
-                onChange={formik.handleChange}
                 className="text-sm"
               />
               <InputWithLabel
+                {...register('newPassword')}
                 type="password"
                 label={t('new-password')}
-                name="newPassword"
                 placeholder={t('new-password')}
-                value={formik.values.newPassword}
                 error={
-                  formik.touched.newPassword
-                    ? formik.errors.newPassword
+                  touchedFields.newPassword
+                    ? errors.newPassword?.message
                     : undefined
                 }
-                onChange={formik.handleChange}
                 className="text-sm"
               />
             </div>
@@ -89,8 +87,8 @@ const UpdatePassword = () => {
               <Button
                 type="submit"
                 color="primary"
-                loading={formik.isSubmitting}
-                disabled={!formik.dirty || !formik.isValid}
+                loading={isSubmitting}
+                disabled={!isDirty || !isValid}
                 size="md"
               >
                 {t('change-password')}

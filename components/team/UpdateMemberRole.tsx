@@ -1,7 +1,7 @@
 import { defaultHeaders } from '@/lib/common';
 import { availableRoles } from '@/lib/permissions';
 import { Team, TeamMember } from '@prisma/client';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
 
@@ -11,7 +11,7 @@ interface UpdateMemberRoleProps {
 }
 
 const UpdateMemberRole = ({ team, member }: UpdateMemberRoleProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const updateRole = async (member: TeamMember, role: string) => {
     const response = await fetch(`/api/teams/${team.slug}/members`, {

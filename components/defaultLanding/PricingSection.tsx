@@ -1,11 +1,11 @@
 import { CheckIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { Button, Card } from 'react-daisyui';
 
 import plans from './data/pricing.json';
 
 const PricingSection = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   return (
     <section className="py-6">
       <div className="flex flex-col justify-center space-y-6">

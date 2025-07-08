@@ -1,22 +1,21 @@
+'use client';
+
 import {
   Error,
   InputWithLabel,
   Loading,
   WithLoadingAndError,
 } from '@/components/shared';
-import {
-  defaultHeaders,
-  maxLengthPolicies,
-  passwordPolicies,
-} from '@/lib/common';
-import { useFormik } from 'formik';
+import { defaultHeaders } from '@/lib/common';
+import { zodResolver } from '@hookform/resolvers/zod';
 import useInvitation from 'hooks/useInvitation';
-import { useTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Button } from 'react-daisyui';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
-import * as Yup from 'yup';
+import { z } from 'zod';
 import TogglePasswordVisibility from '../shared/TogglePasswordVisibility';
 import { useRef, useState } from 'react';
 import AgreeMessage from './AgreeMessage';
@@ -28,27 +27,50 @@ interface JoinWithInvitationProps {
   recaptchaSiteKey: string | null;
 }
 
-const JoinUserSchema = Yup.object().shape({
-  name: Yup.string().required().max(maxLengthPolicies.name),
-  password: Yup.string()
-    .required()
-    .min(passwordPolicies.minLength)
-    .max(maxLengthPolicies.password),
-  sentViaEmail: Yup.boolean().required(),
-  email: Yup.string()
-    .max(maxLengthPolicies.email)
-    .when('sentViaEmail', {
-      is: false,
-      then: (schema) => schema.required().email().max(maxLengthPolicies.email),
-    }),
-});
+const joinUserSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, 'Name is required')
+      .max(100, 'Name should have at most 100 characters'),
+    password: z
+      .string()
+      .min(8, 'Password must have at least 8 characters')
+      .max(100, 'Password should have at most 100 characters'),
+    sentViaEmail: z.boolean(),
+    email: z
+      .string()
+      .max(100, 'Email should have at most 100 characters')
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.sentViaEmail && (!data.email || data.email === '')) {
+        return false;
+      }
+      if (
+        !data.sentViaEmail &&
+        data.email &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Email is required and must be valid when not sent via email',
+      path: ['email'],
+    }
+  );
+
+type JoinUserFormData = z.infer<typeof joinUserSchema>;
 
 const JoinWithInvitation = ({
   inviteToken,
   recaptchaSiteKey,
 }: JoinWithInvitationProps) => {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const { isLoading, error, invitation } = useInvitation();
   const [recaptchaToken, setRecaptchaToken] = useState<string>('');
@@ -58,42 +80,46 @@ const JoinWithInvitation = ({
     setIsPasswordVisible((prev) => !prev);
   };
 
-  const formik = useFormik({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty },
+    reset,
+  } = useForm<JoinUserFormData>({
+    resolver: zodResolver(joinUserSchema),
+    defaultValues: {
       name: '',
       email: '',
       password: '',
       sentViaEmail: invitation?.sentViaEmail || true,
     },
-    validationSchema: JoinUserSchema,
-    enableReinitialize: true,
-    validateOnChange: false,
-    validateOnBlur: false,
-    onSubmit: async (values) => {
-      const response = await fetch('/api/auth/join', {
-        method: 'POST',
-        headers: defaultHeaders,
-        body: JSON.stringify({
-          ...values,
-          recaptchaToken,
-          inviteToken,
-        }),
-      });
-
-      const json = (await response.json()) as ApiResponse;
-
-      recaptchaRef.current?.reset();
-
-      if (!response.ok) {
-        toast.error(json.error.message);
-        return;
-      }
-
-      formik.resetForm();
-      toast.success(t('successfully-joined'));
-      router.push(`/auth/login?token=${inviteToken}`);
-    },
+    mode: 'onChange',
   });
+
+  const onSubmit = async (values: JoinUserFormData) => {
+    const response = await fetch('/api/auth/join', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({
+        ...values,
+        recaptchaToken,
+        inviteToken,
+      }),
+    });
+
+    const json = (await response.json()) as ApiResponse;
+
+    recaptchaRef.current?.reset();
+
+    if (!response.ok) {
+      toast.error(json.error.message);
+      return;
+    }
+
+    reset();
+    toast.success(t('successfully-joined'));
+    router.push(`/auth/login?token=${inviteToken}`);
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -105,15 +131,13 @@ const JoinWithInvitation = ({
 
   return (
     <WithLoadingAndError isLoading={isLoading} error={error}>
-      <form className="space-y-3" onSubmit={formik.handleSubmit}>
+      <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
         <InputWithLabel
+          {...register('name')}
           type="text"
           label={t('name')}
-          name="name"
           placeholder={t('your-name')}
-          value={formik.values.name}
-          error={formik.errors.name}
-          onChange={formik.handleChange}
+          error={errors.name?.message}
         />
 
         {invitation.sentViaEmail ? (
@@ -125,25 +149,21 @@ const JoinWithInvitation = ({
           />
         ) : (
           <InputWithLabel
+            {...register('email')}
             type="email"
             label={t('email')}
-            name="email"
             placeholder={t('email')}
-            value={formik.values.email}
-            error={formik.errors.email}
-            onChange={formik.handleChange}
+            error={errors.email?.message}
           />
         )}
 
         <div className="relative flex">
           <InputWithLabel
+            {...register('password')}
             type={isPasswordVisible ? 'text' : 'password'}
             label={t('password')}
-            name="password"
             placeholder={t('password')}
-            value={formik.values.password}
-            error={formik.errors.password}
-            onChange={formik.handleChange}
+            error={errors.password?.message}
           />
           <TogglePasswordVisibility
             isPasswordVisible={isPasswordVisible}
@@ -159,8 +179,8 @@ const JoinWithInvitation = ({
           <Button
             type="submit"
             color="primary"
-            loading={formik.isSubmitting}
-            active={formik.dirty}
+            loading={isSubmitting}
+            active={isDirty}
             fullWidth
             size="md"
           >

@@ -1,6 +1,6 @@
 import { Button } from 'react-daisyui';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 import { Invitation } from '@prisma/client';
 
@@ -10,7 +10,7 @@ interface NotAuthenticatedProps {
 
 const NotAuthenticated = ({ invitation }: NotAuthenticatedProps) => {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   return (
     <>

@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/shared';
 
 const Help = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   return (
     <Card>

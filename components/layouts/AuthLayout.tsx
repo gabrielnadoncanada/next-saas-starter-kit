@@ -1,5 +1,5 @@
 import app from '@/lib/app';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 interface AuthLayoutProps {
@@ -13,7 +13,7 @@ export default function AuthLayout({
   heading,
   description,
 }: AuthLayoutProps) {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   return (
     <>

@@ -1,20 +1,23 @@
 import { InputWithLabel } from '@/components/shared';
-import type { FormikConfig } from 'formik';
-import { useFormik } from 'formik';
-import { useTranslation } from 'next-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { webhookEndpointSchema } from '@/lib/zod';
+import { useTranslations } from 'next-intl';
 import React from 'react';
 import { Button } from 'react-daisyui';
+import { useForm } from 'react-hook-form';
 import type { WebhookFormSchema } from 'types';
-import * as Yup from 'yup';
+import { z } from 'zod';
 import Modal from '../shared/Modal';
 import { EventTypes } from '@/components/webhook';
-import { maxLengthPolicies } from '@/lib/common';
 
 interface FormProps {
   visible: boolean;
   setVisible: (visible: boolean) => void;
   initialValues: WebhookFormSchema;
-  onSubmit: FormikConfig<WebhookFormSchema>['onSubmit'];
+  onSubmit: (
+    values: WebhookFormSchema,
+    helpers: { resetForm: () => void }
+  ) => void | Promise<void>;
   title: string;
   editMode?: boolean;
 }
@@ -27,47 +30,51 @@ const Form = ({
   title,
   editMode = false,
 }: FormProps) => {
-  const formik = useFormik<WebhookFormSchema>({
-    validationSchema: Yup.object().shape({
-      name: Yup.string().required().max(maxLengthPolicies.webhookDescription),
-      url: Yup.string().required().url().max(maxLengthPolicies.webhookEndpoint),
-      eventTypes: Yup.array().min(1, 'Please choose at least one event type'),
-    }),
-    initialValues,
-    enableReinitialize: true,
-    onSubmit,
-    validateOnBlur: false,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty },
+    reset,
+    watch,
+    setValue,
+  } = useForm<WebhookFormSchema>({
+    resolver: zodResolver(webhookEndpointSchema),
+    defaultValues: initialValues,
+    mode: 'onChange',
   });
 
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const toggleVisible = () => {
     setVisible(!visible);
-    formik.resetForm();
+    reset();
   };
+
+  const handleFormSubmit = async (values: WebhookFormSchema) => {
+    await onSubmit(values, { resetForm: () => reset() });
+  };
+
+  // Watch values for controlled components
+  const watchedValues = watch();
 
   return (
     <Modal open={visible} close={toggleVisible}>
-      <form onSubmit={formik.handleSubmit} method="POST">
+      <form onSubmit={handleSubmit(handleFormSubmit)} method="POST">
         <Modal.Header>{title}</Modal.Header>
         <Modal.Description>{t('webhook-create-desc')}</Modal.Description>
         <Modal.Body>
           <div className="flex flex-col space-y-3">
             <InputWithLabel
-              name="name"
+              {...register('name')}
               label="Description"
-              onChange={formik.handleChange}
-              value={formik.values.name}
               placeholder="Description of what this endpoint is used for."
-              error={formik.errors.name}
+              error={errors.name?.message}
             />
             <InputWithLabel
-              name="url"
+              {...register('url')}
               label="Endpoint"
-              onChange={formik.handleChange}
-              value={formik.values.url}
               placeholder="https://api.example.com/svix-webhooks"
-              error={formik.errors.url}
+              error={errors.url?.message}
               descriptionText="The endpoint URL must be HTTPS"
             />
             <div className="divider"></div>
@@ -80,9 +87,20 @@ const Form = ({
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <EventTypes
-                  onChange={formik.handleChange}
-                  values={initialValues['eventTypes']}
-                  error={formik.errors.eventTypes}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const currentValues = watchedValues.eventTypes || [];
+                    if (e.target.checked) {
+                      setValue('eventTypes', [...currentValues, value]);
+                    } else {
+                      setValue(
+                        'eventTypes',
+                        currentValues.filter((v) => v !== value)
+                      );
+                    }
+                  }}
+                  values={watchedValues.eventTypes || []}
+                  error={errors.eventTypes?.message}
                 />
               </div>
             </div>
@@ -102,8 +120,8 @@ const Form = ({
           <Button
             type="submit"
             color="primary"
-            loading={formik.isSubmitting}
-            active={formik.dirty}
+            loading={isSubmitting}
+            active={isDirty}
             size="md"
           >
             {editMode ? t('update-webhook') : t('create-webhook')}

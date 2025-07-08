@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 import { Button } from 'react-daisyui';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 import useTeam from 'hooks/useTeam';
 import { Price } from '@prisma/client';
@@ -14,7 +14,7 @@ interface ProductPricingProps {
 
 const ProductPricing = ({ plans, subscriptions }: ProductPricingProps) => {
   const { team } = useTeam();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const initiateCheckout = async (price: string, quantity?: number) => {
     const res = await fetch(

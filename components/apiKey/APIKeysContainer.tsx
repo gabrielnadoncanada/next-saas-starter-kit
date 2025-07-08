@@ -1,12 +1,12 @@
 import { Error, Loading } from '@/components/shared';
 import { TeamTab } from '@/components/team';
 import useTeam from 'hooks/useTeam';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import APIKeys from './APIKeys';
 import { TeamFeature } from 'types';
 
 const APIKeysContainer = ({ teamFeatures }: { teamFeatures: TeamFeature }) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const { isLoading, isError, team } = useTeam();
 

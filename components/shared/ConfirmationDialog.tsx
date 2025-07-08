@@ -1,4 +1,4 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { Button } from 'react-daisyui';
 import Modal from './Modal';
 
@@ -21,7 +21,7 @@ const ConfirmationDialog = ({
   confirmText,
   cancelText,
 }: ConfirmationDialogProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const handleConfirm = async () => {
     await onConfirm();

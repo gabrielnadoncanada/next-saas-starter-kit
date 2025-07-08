@@ -1,9 +1,9 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 import features from './data/features.json';
 
 const FeatureSection = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   return (
     <section className="py-6 px-2">
       <div className="flex flex-col justify-center space-y-6">

@@ -1,5 +1,5 @@
 import { Button, Modal as DModal } from 'react-daisyui';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 interface ModalProps {
   open: boolean;
@@ -13,7 +13,7 @@ interface BodyProps {
 }
 
 const Modal = ({ open, close, children }: ModalProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   return (
     <DModal open={open} className="dark:border dark:border-gray-100">

@@ -1,93 +1,97 @@
-import React from 'react';
-import * as Yup from 'yup';
-import { mutate } from 'swr';
-import { useFormik } from 'formik';
+import { InputWithLabel } from '@/components/shared';
+import { defaultHeaders } from '@/lib/common';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { inviteViaEmailSchema } from '@/lib/zod';
+import { Role } from '@prisma/client';
+import { useTranslations } from 'next-intl';
+import { Button } from 'react-daisyui';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Button, Input } from 'react-daisyui';
-import { useTranslation } from 'next-i18next';
-
 import type { ApiResponse } from 'types';
-import { defaultHeaders, maxLengthPolicies } from '@/lib/common';
-import { availableRoles } from '@/lib/permissions';
-import type { Team } from '@prisma/client';
+import { z } from 'zod';
 
 interface InviteViaEmailProps {
-  team: Team;
-  setVisible: (visible: boolean) => void;
+  teamSlug: string;
+  onSuccess: () => void;
 }
 
-const InviteViaEmail = ({ setVisible, team }: InviteViaEmailProps) => {
-  const { t } = useTranslation('common');
+const emailInviteSchema = z.object({
+  email: z
+    .string()
+    .email('Enter a valid email address')
+    .min(1, 'Email is required'),
+  role: z.nativeEnum(Role),
+});
 
-  const FormValidationSchema = Yup.object().shape({
-    email: Yup.string()
-      .email()
-      .max(maxLengthPolicies.email)
-      .required(t('require-email')),
-    role: Yup.string()
-      .required(t('required-role'))
-      .oneOf(availableRoles.map((r) => r.id)),
-  });
+type EmailInviteFormData = z.infer<typeof emailInviteSchema>;
 
-  const formik = useFormik({
-    initialValues: {
+const InviteViaEmail = ({ teamSlug, onSuccess }: InviteViaEmailProps) => {
+  const t = useTranslations();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty, isValid },
+    reset,
+  } = useForm<EmailInviteFormData>({
+    resolver: zodResolver(emailInviteSchema),
+    defaultValues: {
       email: '',
-      role: availableRoles[0].id,
-      sentViaEmail: true,
+      role: Role.MEMBER,
     },
-    validationSchema: FormValidationSchema,
-    onSubmit: async (values) => {
-      const response = await fetch(`/api/teams/${team.slug}/invitations`, {
-        method: 'POST',
-        headers: defaultHeaders,
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const result = (await response.json()) as ApiResponse;
-        toast.error(result.error.message);
-        return;
-      }
-
-      toast.success(t('invitation-sent'));
-      mutate(`/api/teams/${team.slug}/invitations?sentViaEmail=true`);
-      setVisible(false);
-      formik.resetForm();
-    },
+    mode: 'onChange',
   });
+
+  const onSubmit = async (values: EmailInviteFormData) => {
+    const response = await fetch(`/api/teams/${teamSlug}/invitations`, {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({
+        ...values,
+        sentViaEmail: true,
+      }),
+    });
+
+    const json = (await response.json()) as ApiResponse;
+
+    if (!response.ok) {
+      toast.error(json.error.message);
+      return;
+    }
+
+    toast.success(t('invitation-sent'));
+    reset();
+    onSuccess();
+  };
 
   return (
-    <form onSubmit={formik.handleSubmit} method="POST" className="pb-6">
-      <h3 className="font-medium text-[14px] pb-2">{t('invite-via-email')}</h3>
-      <div className="flex gap-1">
-        <Input
-          name="email"
-          onChange={formik.handleChange}
-          value={formik.values.email}
-          placeholder="jackson@boxyhq.com"
-          required
-          className="text-sm w-1/2"
+    <form onSubmit={handleSubmit(onSubmit)} method="POST" className="pb-6">
+      <div className="flex flex-col space-y-3">
+        <InputWithLabel
+          {...register('email')}
           type="email"
+          label={t('email')}
+          placeholder="jackson@boxyhq.com"
+          error={errors.email?.message}
         />
-        <select
-          className="select-bordered select rounded"
-          name="role"
-          onChange={formik.handleChange}
-          value={formik.values.role}
-          required
-        >
-          {availableRoles.map((role) => (
-            <option value={role.id} key={role.id}>
-              {role.name}
-            </option>
-          ))}
-        </select>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">{t('role')}</span>
+          </label>
+          <select {...register('role')} className="select select-bordered">
+            <option value={Role.MEMBER}>{t('member')}</option>
+            <option value={Role.ADMIN}>{t('admin')}</option>
+            <option value={Role.OWNER}>{t('owner')}</option>
+          </select>
+        </div>
+      </div>
+      <div className="mt-4">
         <Button
           type="submit"
           color="primary"
-          loading={formik.isSubmitting}
-          disabled={!formik.isValid || !formik.dirty}
-          className="flex-grow"
+          loading={isSubmitting}
+          disabled={!isValid || !isDirty}
+          size="md"
         >
           {t('send-invite')}
         </Button>

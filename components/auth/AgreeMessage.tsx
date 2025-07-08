@@ -1,8 +1,8 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 const AgreeMessage = ({ text }) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   return (
     <p className="text-sm text-center">

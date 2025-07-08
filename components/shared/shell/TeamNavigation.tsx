@@ -1,5 +1,5 @@
 import { Cog6ToothIcon, CodeBracketIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import NavigationItems from './NavigationItems';
 import { NavigationProps, MenuItem } from './NavigationItems';
 
@@ -8,7 +8,7 @@ interface NavigationItemsProps extends NavigationProps {
 }
 
 const TeamNavigation = ({ slug, activePathname }: NavigationItemsProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const menus: MenuItem[] = [
     {

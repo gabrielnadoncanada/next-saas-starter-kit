@@ -1,9 +1,11 @@
+'use client';
+
 import { Error, LetterAvatar, Loading } from '@/components/shared';
 import { Team, TeamMember } from '@prisma/client';
 import useCanAccess from 'hooks/useCanAccess';
 import useTeamMembers, { TeamMemberWithUser } from 'hooks/useTeamMembers';
 import { useSession } from 'next-auth/react';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { Button } from 'react-daisyui';
 import toast from 'react-hot-toast';
 
@@ -17,7 +19,7 @@ import { Table } from '@/components/shared/table/Table';
 
 const Members = ({ team }: { team: Team }) => {
   const { data: session } = useSession();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { canAccess } = useCanAccess();
   const [visible, setVisible] = useState(false);
   const [selectedMember, setSelectedMember] =
@@ -150,8 +152,8 @@ const Members = ({ team }: { team: Team }) => {
         title={t('confirm-delete-member')}
       >
         {t('delete-member-warning', {
-          name: selectedMember?.user.name,
-          email: selectedMember?.user.email,
+          name: selectedMember?.user.name || '',
+          email: selectedMember?.user.email || '',
         })}
       </ConfirmationDialog>
       <InviteMember visible={visible} setVisible={setVisible} team={team} />

@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import useTeams from 'hooks/useTeams';
 import { useSession } from 'next-auth/react';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -17,7 +17,7 @@ const TeamDropdown = () => {
   const router = useRouter();
   const { teams } = useTeams();
   const { data } = useSession();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const currentTeam = (teams || []).find(
     (team) => team.slug === router.query.slug

@@ -10,7 +10,7 @@ import {
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import useTheme from 'hooks/useTheme';
 import env from '@/lib/env';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { useCustomSignOut } from 'hooks/useCustomSignout';
 
 interface HeaderProps {
@@ -20,7 +20,7 @@ interface HeaderProps {
 const Header = ({ setSidebarOpen }: HeaderProps) => {
   const { toggleTheme } = useTheme();
   const { status, data } = useSession();
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const signOut = useCustomSignOut();
 
   if (status === 'loading' || !data) {

@@ -2,9 +2,15 @@ import Stripe from 'stripe';
 import env from '@/lib/env';
 import { updateTeam } from 'models/team';
 
-export const stripe = new Stripe(env.stripe.secretKey ?? '');
+export const stripe = env.stripe.secretKey
+  ? new Stripe(env.stripe.secretKey)
+  : null;
 
 export async function getStripeCustomerId(teamMember, session?: any) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured');
+  }
+
   let customerId = '';
   if (!teamMember.team.billingId) {
     const customerData: {

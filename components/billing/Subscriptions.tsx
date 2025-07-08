@@ -1,4 +1,4 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 import { Service, Subscription } from '@prisma/client';
 
@@ -7,7 +7,7 @@ interface SubscriptionsProps {
 }
 
 const Subscriptions = ({ subscriptions }: SubscriptionsProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   if (subscriptions.length === 0) {
     return null;

@@ -1,11 +1,11 @@
 import { signIn } from 'next-auth/react';
 import { Button } from 'react-daisyui';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import useInvitation from 'hooks/useInvitation';
 import env from '@/lib/env';
 
 const GithubButton = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { invitation } = useInvitation();
 
   const callbackUrl = invitation

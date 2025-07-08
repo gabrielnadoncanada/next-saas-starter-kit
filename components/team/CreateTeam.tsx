@@ -1,14 +1,18 @@
-import { defaultHeaders, maxLengthPolicies } from '@/lib/common';
+'use client';
+
+import { defaultHeaders } from '@/lib/common';
 import type { Team } from '@prisma/client';
-import { useFormik } from 'formik';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createTeamSchema } from '@/lib/zod';
 import useTeams from 'hooks/useTeams';
-import { useTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import { Button } from 'react-daisyui';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
-import * as Yup from 'yup';
+import { z } from 'zod';
 import Modal from '../shared/Modal';
 import { InputWithLabel } from '../shared';
 
@@ -17,39 +21,46 @@ interface CreateTeamProps {
   setVisible: (visible: boolean) => void;
 }
 
+type CreateTeamFormData = z.infer<typeof createTeamSchema>;
+
 const CreateTeam = ({ visible, setVisible }: CreateTeamProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { mutateTeams } = useTeams();
   const router = useRouter();
 
-  const formik = useFormik({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty, isValid },
+    reset,
+  } = useForm<CreateTeamFormData>({
+    resolver: zodResolver(createTeamSchema),
+    defaultValues: {
       name: '',
     },
-    validationSchema: Yup.object().shape({
-      name: Yup.string().required().max(maxLengthPolicies.team),
-    }),
-    onSubmit: async (values) => {
-      const response = await fetch('/api/teams/', {
-        method: 'POST',
-        headers: defaultHeaders,
-        body: JSON.stringify(values),
-      });
-
-      const json = (await response.json()) as ApiResponse<Team>;
-
-      if (!response.ok) {
-        toast.error(json.error.message);
-        return;
-      }
-
-      formik.resetForm();
-      mutateTeams();
-      setVisible(false);
-      toast.success(t('team-created'));
-      router.push(`/teams/${json.data.slug}/settings`);
-    },
+    mode: 'onChange',
   });
+
+  const onSubmit = async (values: CreateTeamFormData) => {
+    const response = await fetch('/api/teams/', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify(values),
+    });
+
+    const json = (await response.json()) as ApiResponse<Team>;
+
+    if (!response.ok) {
+      toast.error(json.error.message);
+      return;
+    }
+
+    reset();
+    mutateTeams();
+    setVisible(false);
+    toast.success(t('team-created'));
+    router.push(`/teams/${json.data.slug}/settings`);
+  };
 
   const onClose = () => {
     setVisible(false);
@@ -58,16 +69,15 @@ const CreateTeam = ({ visible, setVisible }: CreateTeamProps) => {
 
   return (
     <Modal open={visible} close={onClose}>
-      <form onSubmit={formik.handleSubmit} method="POST">
+      <form onSubmit={handleSubmit(onSubmit)} method="POST">
         <Modal.Header>{t('create-team')}</Modal.Header>
         <Modal.Description>{t('members-of-a-team')}</Modal.Description>
         <Modal.Body>
           <InputWithLabel
+            {...register('name')}
             label={t('name')}
-            name="name"
-            onChange={formik.handleChange}
-            value={formik.values.name}
             placeholder={t('team-name')}
+            error={errors.name?.message}
             required
           />
         </Modal.Body>
@@ -78,9 +88,9 @@ const CreateTeam = ({ visible, setVisible }: CreateTeamProps) => {
           <Button
             type="submit"
             color="primary"
-            loading={formik.isSubmitting}
+            loading={isSubmitting}
             size="md"
-            disabled={!formik.dirty || !formik.isValid}
+            disabled={!isDirty || !isValid}
           >
             {t('create-team')}
           </Button>

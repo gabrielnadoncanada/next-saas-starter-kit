@@ -3,7 +3,7 @@ import TeamDropdown from '../TeamDropdown';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import Brand from './Brand';
 import Navigation from './Navigation';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 interface DrawerProps {
   sidebarOpen: boolean;
@@ -11,7 +11,7 @@ interface DrawerProps {
 }
 
 const Drawer = ({ sidebarOpen, setSidebarOpen }: DrawerProps) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   return (
     <>
