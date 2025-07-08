@@ -40,36 +40,7 @@ const env = {
     clientSecret: `${process.env.GOOGLE_CLIENT_SECRET}`,
   },
 
-  // Retraced configuration
-  retraced: {
-    url: process.env.RETRACED_URL
-      ? `${process.env.RETRACED_URL}/auditlog`
-      : undefined,
-    apiKey: process.env.RETRACED_API_KEY,
-    projectId: process.env.RETRACED_PROJECT_ID,
-  },
-
   groupPrefix: process.env.GROUP_PREFIX,
-
-  // SAML Jackson configuration
-  jackson: {
-    url: process.env.JACKSON_URL,
-    externalUrl: process.env.JACKSON_EXTERNAL_URL || process.env.JACKSON_URL,
-    apiKey: process.env.JACKSON_API_KEY,
-    productId: process.env.JACKSON_PRODUCT_ID || 'boxyhq',
-    selfHosted: process.env.JACKSON_URL !== undefined,
-    sso: {
-      callback: `${process.env.APP_URL}`,
-      issuer: 'https://saml.boxyhq.com',
-      path: '/api/oauth/saml',
-      oidcPath: '/api/oauth/oidc',
-      idpLoginPath: '/auth/idp-login',
-    },
-    dsync: {
-      webhook_url: `${process.env.APP_URL}/api/webhooks/dsync`,
-      webhook_secret: process.env.JACKSON_WEBHOOK_SECRET,
-    },
-  },
 
   // Users will need to confirm their email before accessing the app feature
   confirmEmail: process.env.CONFIRM_EMAIL === 'true',
@@ -82,7 +53,8 @@ const env = {
   disableNonBusinessEmailSignup:
     process.env.DISABLE_NON_BUSINESS_EMAIL_SIGNUP === 'true',
 
-  authProviders: process.env.AUTH_PROVIDERS || 'github,credentials',
+  authProviders:
+    process.env.AUTH_PROVIDERS || 'github,credentials,google,email',
 
   otel: {
     prefix: process.env.OTEL_PREFIX || 'boxyhq.saas',
@@ -93,11 +65,10 @@ const env = {
   darkModeEnabled: process.env.NEXT_PUBLIC_DARK_MODE !== 'false',
 
   teamFeatures: {
-    sso: process.env.FEATURE_TEAM_SSO !== 'false',
-    dsync: process.env.FEATURE_TEAM_DSYNC !== 'false',
+    sso: false,
+    dsync: false,
     webhook: process.env.FEATURE_TEAM_WEBHOOK !== 'false',
     apiKey: process.env.FEATURE_TEAM_API_KEY !== 'false',
-    auditLog: process.env.FEATURE_TEAM_AUDIT_LOG !== 'false',
     payments:
       process.env.FEATURE_TEAM_PAYMENTS === 'false'
         ? false

@@ -1,6 +1,5 @@
 import { sendTeamInviteEmail } from '@/lib/email/sendTeamInviteEmail';
 import { ApiError } from '@/lib/errors';
-import { sendAudit } from '@/lib/retraced';
 import { sendEvent } from '@/lib/svix';
 import {
   createInvitation,
@@ -176,13 +175,6 @@ export async function POST(
 
     await sendEvent(teamMember.teamId, 'invitation.created', invitation);
 
-    sendAudit({
-      action: 'member.invitation.create',
-      crud: 'c',
-      user: teamMember.user,
-      team: teamMember.team,
-    });
-
     recordMetric('invitation.created');
 
     return new NextResponse(null, { status: 204 });
@@ -297,13 +289,6 @@ export async function DELETE(
     }
 
     await deleteInvitation({ id: validatedId });
-
-    sendAudit({
-      action: 'member.invitation.delete',
-      crud: 'd',
-      user: teamMember.user,
-      team: teamMember.team,
-    });
 
     await sendEvent(teamMember.teamId, 'invitation.removed', invitation);
 

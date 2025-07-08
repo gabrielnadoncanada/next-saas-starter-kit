@@ -1,5 +1,4 @@
 import { ApiError } from '@/lib/errors';
-import { sendAudit } from '@/lib/retraced';
 import { findOrCreateApp, findWebhook, updateWebhook } from '@/lib/svix';
 import { getTeamMember } from 'models/team';
 import { throwIfNotAllowed } from 'models/user';
@@ -115,13 +114,6 @@ export async function PUT(
     await findWebhook(app.id, endpointId);
 
     const webhook = await updateWebhook(app.id, endpointId, data);
-
-    sendAudit({
-      action: 'webhook.update',
-      crud: 'u',
-      user: teamMember.user,
-      team: teamMember.team,
-    });
 
     recordMetric('webhook.updated');
 

@@ -1,4 +1,4 @@
-import { hashPassword, verifyPassword } from '@/lib/auth';
+import { hashPassword, verifyPassword } from '@/lib/auth-utils';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiError } from '@/lib/errors';

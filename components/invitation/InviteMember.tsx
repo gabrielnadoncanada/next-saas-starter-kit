@@ -20,7 +20,10 @@ const InviteMember = ({ visible, setVisible, team }: InviteMemberProps) => {
       <Modal.Header>{t('invite-new-member')}</Modal.Header>
       <Modal.Body>
         <div className="grid grid-cols-1 divide-y py-2">
-          <InviteViaEmail teamSlug={team.slug} onSuccess={() => setVisible(false)} />
+          <InviteViaEmail
+            teamSlug={team.slug}
+            onSuccess={() => setVisible(false)}
+          />
           <InviteViaLink team={team} />
         </div>
       </Modal.Body>

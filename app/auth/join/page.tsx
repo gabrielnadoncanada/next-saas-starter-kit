@@ -4,16 +4,16 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-import { authProviderEnabled } from '@/lib/auth';
+import { authProviderEnabled } from '@/lib/auth-utils';
 import GithubButton from '@/components/auth/GithubButton';
 import GoogleButton from '@/components/auth/GoogleButton';
 import { JoinWithInvitation, Join } from '@/components/auth';
 import { Loading } from '@/components/shared';
 import env from '@/lib/env';
 
-export default function Signup() {
+function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { status } = useSession();
@@ -27,12 +27,16 @@ export default function Signup() {
     }
   }, [error]);
 
+  // Handle redirect when authenticated
+  useEffect(() => {
+    if (status === 'authenticated') {
+      console.log('authenticated');
+      router.push(env.redirectIfAuthenticated);
+    }
+  }, [status, router]);
+
   if (status === 'loading') {
     return <Loading />;
-  }
-
-  if (status === 'authenticated') {
-    router.push(env.redirectIfAuthenticated);
   }
 
   const params = token ? `?token=${token}` : '';
@@ -72,5 +76,13 @@ export default function Signup() {
         </Link>
       </p>
     </>
+  );
+}
+
+export default function Signup() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <SignupContent />
+    </Suspense>
   );
 }

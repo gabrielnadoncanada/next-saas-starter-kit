@@ -1,12 +1,16 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
-const AgreeMessage = ({ text }) => {
+interface AgreeMessageProps {
+  text: string;
+}
+
+const AgreeMessage = ({ text }: AgreeMessageProps) => {
   const t = useTranslations();
 
   return (
     <p className="text-sm text-center">
-      {t('agree-message-part', { button: text })}{' '}
+      {t('agree-message-part', { button: text })}
       <Link
         rel="noopener noreferrer"
         target="_blank"

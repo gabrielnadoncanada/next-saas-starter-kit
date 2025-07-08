@@ -9,19 +9,17 @@ import useTeams from 'hooks/useTeams';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import React from 'react';
 import { maxLengthPolicies } from '@/lib/common';
 
 const TeamDropdown = () => {
-  const router = useRouter();
+  const params = useParams();
   const { teams } = useTeams();
   const { data } = useSession();
   const t = useTranslations();
 
-  const currentTeam = (teams || []).find(
-    (team) => team.slug === router.query.slug
-  );
+  const currentTeam = (teams || []).find((team) => team.slug === params?.slug);
 
   const menus = [
     {

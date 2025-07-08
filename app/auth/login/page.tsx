@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from 'react-daisyui';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import type { ComponentStatus } from 'react-daisyui/dist/types';
 import { getCsrfToken, signIn, useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
@@ -14,11 +14,12 @@ import env from '@/lib/env';
 import GithubButton from '@/components/auth/GithubButton';
 import GoogleButton from '@/components/auth/GoogleButton';
 import { Alert, InputWithLabel, Loading } from '@/components/shared';
-import { authProviderEnabled } from '@/lib/auth';
+import { authProviderEnabled } from '@/lib/auth-utils';
 import TogglePasswordVisibility from '@/components/shared/TogglePasswordVisibility';
 import AgreeMessage from '@/components/auth/AgreeMessage';
 import GoogleReCAPTCHA from '@/components/shared/GoogleReCAPTCHA';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { useTranslations } from 'next-intl';
 
 interface Message {
   text: string | null;
@@ -35,10 +36,11 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function Login() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { status } = useSession();
+  const t = useTranslations();
   const [recaptchaToken, setRecaptchaToken] = useState<string>('');
   const [message, setMessage] = useState<Message>({ text: null, status: null });
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
@@ -88,6 +90,13 @@ export default function Login() {
     ? `/invitations/${token}`
     : env.redirectIfAuthenticated;
 
+  // Handle redirect when authenticated
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push(redirectUrl);
+    }
+  }, [status, router, redirectUrl]);
+
   const onSubmit = async (values: LoginFormData) => {
     const { email, password } = values;
 
@@ -113,10 +122,6 @@ export default function Login() {
 
   if (status === 'loading') {
     return <Loading />;
-  }
-
-  if (status === 'authenticated') {
-    router.push(redirectUrl);
   }
 
   const params = token ? `?token=${token}` : '';
@@ -196,14 +201,12 @@ export default function Login() {
               >
                 Sign In
               </Button>
-              <AgreeMessage text="Sign In" />
+              <AgreeMessage text={t('sign-in')} />
             </div>
           </form>
         )}
 
-        {(authProviders.email || authProviders.saml) && (
-          <div className="divider"></div>
-        )}
+        {authProviders.email && <div className="divider"></div>}
 
         <div className="space-y-3">
           {authProviders.email && (
@@ -212,14 +215,6 @@ export default function Login() {
               className="btn btn-outline btn-block"
             >
               Continue with Email
-            </Link>
-          )}
-          {authProviders.saml && (
-            <Link
-              href={`/auth/sso${params}`}
-              className="btn btn-outline btn-block"
-            >
-              Continue with SAML SSO
             </Link>
           )}
         </div>
@@ -234,5 +229,13 @@ export default function Login() {
         </Link>
       </p>
     </>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <LoginContent />
+    </Suspense>
   );
 }

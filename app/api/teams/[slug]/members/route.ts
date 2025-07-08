@@ -1,5 +1,4 @@
 import { ApiError } from '@/lib/errors';
-import { sendAudit } from '@/lib/retraced';
 import { sendEvent } from '@/lib/svix';
 import { Role } from '@prisma/client';
 import { getTeamMembers, removeTeamMember, getTeamMember } from 'models/team';
@@ -60,7 +59,37 @@ export async function GET(
   }
 }
 
-// Delete the member from the team
+// Update the role of a team member
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const { slug } = await params;
+    const teamMember = await getTeamMemberForMembers(slug);
+    throwIfNotAllowed(teamMember, 'team_member', 'update');
+
+    const { memberId, role } = validateWithSchema(
+      updateMemberSchema,
+      await request.json()
+    );
+
+    await validateMembershipOperation(teamMember.role, role);
+
+    await updateTeamMember(memberId, { role });
+
+    recordMetric('member.updated');
+
+    return NextResponse.json({ data: {} });
+  } catch (error: any) {
+    const message = error.message || 'Something went wrong';
+    const status = error.status || 500;
+
+    return NextResponse.json({ error: { message } }, { status });
+  }
+}
+
+// Remove a member from the team
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -70,117 +99,39 @@ export async function DELETE(
     const teamMember = await getTeamMemberForMembers(slug);
     throwIfNotAllowed(teamMember, 'team_member', 'delete');
 
-    const url = new URL(request.url);
-    const memberId = url.searchParams.get('memberId');
-
-    const { memberId: validatedMemberId } = validateWithSchema(
+    const { memberId } = validateWithSchema(
       deleteMemberSchema,
-      { memberId: memberId || '' }
+      await request.json()
     );
 
-    await validateMembershipOperation(validatedMemberId, teamMember);
+    // Check if the member to be deleted is the current user
+    if (memberId === teamMember.user.id) {
+      throw new ApiError(400, 'You cannot remove yourself from the team.');
+    }
 
-    const teamMemberRemoved = await removeTeamMember(
-      teamMember.teamId,
-      validatedMemberId
-    );
+    // Check if the current user is trying to remove an owner
+    const memberToDelete = await getTeamMember(memberId, slug);
+    if (memberToDelete.role === Role.OWNER) {
+      throw new ApiError(
+        400,
+        'You cannot remove an owner from the team. Please transfer ownership first.'
+      );
+    }
 
-    await sendEvent(teamMember.teamId, 'member.removed', teamMemberRemoved);
+    await validateMembershipOperation(teamMember.role, memberToDelete.role);
 
-    sendAudit({
-      action: 'member.remove',
-      crud: 'd',
-      user: teamMember.user,
+    await removeTeamMember(teamMember.team.id, memberId);
+
+    const totalTeamMembers = await countTeamMembers(teamMember.team.id);
+
+    sendEvent(teamMember.team.id, 'member.removed', {
       team: teamMember.team,
+      member: memberToDelete,
     });
 
     recordMetric('member.removed');
 
-    return NextResponse.json({ data: {} });
-  } catch (error: any) {
-    const message = error.message || 'Something went wrong';
-    const status = error.status || 500;
-
-    return NextResponse.json({ error: { message } }, { status });
-  }
-}
-
-// Leave a team
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  try {
-    const { slug } = await params;
-    const teamMember = await getTeamMemberForMembers(slug);
-    throwIfNotAllowed(teamMember, 'team', 'leave');
-
-    const totalTeamOwners = await countTeamMembers({
-      where: {
-        role: Role.OWNER,
-        teamId: teamMember.teamId,
-      },
-    });
-
-    if (totalTeamOwners <= 1) {
-      throw new ApiError(400, 'A team should have at least one owner.');
-    }
-
-    await removeTeamMember(teamMember.teamId, teamMember.user.id);
-
-    recordMetric('member.left');
-
-    return NextResponse.json({ data: {} });
-  } catch (error: any) {
-    const message = error.message || 'Something went wrong';
-    const status = error.status || 500;
-
-    return NextResponse.json({ error: { message } }, { status });
-  }
-}
-
-// Update the role of a member
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  try {
-    const { slug } = await params;
-    const teamMember = await getTeamMemberForMembers(slug);
-    throwIfNotAllowed(teamMember, 'team_member', 'update');
-
-    const body = await request.json();
-    const { memberId, role } = validateWithSchema(updateMemberSchema, body) as {
-      memberId: string;
-      role: Role;
-    };
-
-    await validateMembershipOperation(memberId, teamMember, {
-      role,
-    });
-
-    const memberUpdated = await updateTeamMember({
-      where: {
-        teamId_userId: {
-          teamId: teamMember.teamId,
-          userId: memberId,
-        },
-      },
-      data: {
-        role,
-      },
-    });
-
-    sendAudit({
-      action: 'member.update',
-      crud: 'u',
-      user: teamMember.user,
-      team: teamMember.team,
-    });
-
-    recordMetric('member.role.updated');
-
-    return NextResponse.json({ data: memberUpdated });
+    return NextResponse.json({ data: { totalTeamMembers } });
   } catch (error: any) {
     const message = error.message || 'Something went wrong';
     const status = error.status || 500;

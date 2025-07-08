@@ -4,7 +4,6 @@ import type {
   GetServerSidePropsContext,
 } from 'next';
 import { Account, NextAuthOptions, Profile, User } from 'next-auth';
-import BoxyHQSAMLProvider from 'next-auth/providers/boxyhq-saml';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
@@ -19,11 +18,11 @@ import { Role } from '@prisma/client';
 import { getAccount } from 'models/account';
 import { addTeamMember, getTeam } from 'models/team';
 import { createUser, getUser } from 'models/user';
-import { verifyPassword } from '@/lib/auth';
+import { verifyPassword } from '@/lib/auth-utils';
 import { isEmailAllowed } from '@/lib/email/utils';
 import env from '@/lib/env';
 import { prisma } from '@/lib/prisma';
-import { isAuthProviderEnabled } from '@/lib/auth';
+import { isAuthProviderEnabled } from '@/lib/auth-utils';
 import { validateRecaptcha } from '@/lib/recaptcha';
 import { sendMagicLink } from '@/lib/email/sendMagicLink';
 import {
@@ -126,94 +125,6 @@ if (isAuthProviderEnabled('google')) {
   );
 }
 
-if (isAuthProviderEnabled('saml')) {
-  providers.push(
-    BoxyHQSAMLProvider({
-      authorization: { params: { scope: '' } },
-      issuer: env.jackson.selfHosted ? env.jackson.externalUrl : env.appUrl,
-      clientId: 'dummy',
-      clientSecret: 'dummy',
-      allowDangerousEmailAccountLinking: true,
-      httpOptions: {
-        timeout: 30000,
-      },
-    })
-  );
-}
-if (isAuthProviderEnabled('idp-initiated')) {
-  providers.push(
-    CredentialsProvider({
-      id: 'boxyhq-idp',
-      name: 'IdP Login',
-      credentials: {
-        code: {
-          type: 'text',
-        },
-      },
-      async authorize(credentials) {
-        const { code } = credentials || {};
-
-        if (!code) {
-          return null;
-        }
-
-        const samlLoginUrl = env.jackson.selfHosted
-          ? env.jackson.url
-          : env.appUrl;
-
-        const res = await fetch(`${samlLoginUrl}/api/oauth/token`, {
-          method: 'POST',
-          body: JSON.stringify({
-            grant_type: 'authorization_code',
-            client_id: 'dummy',
-            client_secret: 'dummy',
-            redirect_url: process.env.NEXTAUTH_URL,
-            code,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (res.status !== 200) {
-          forceConsume(res);
-          return null;
-        }
-
-        const json = await res.json();
-        if (!json?.access_token) {
-          return null;
-        }
-
-        const resUserInfo = await fetch(`${samlLoginUrl}/api/oauth/userinfo`, {
-          headers: {
-            Authorization: `Bearer ${json.access_token}`,
-          },
-        });
-
-        if (!resUserInfo.ok) {
-          forceConsume(resUserInfo);
-          return null;
-        }
-
-        const profile = await resUserInfo.json();
-
-        if (profile?.id && profile?.email) {
-          return {
-            name: [profile.firstName, profile.lastName]
-              .filter(Boolean)
-              .join(' '),
-            image: null,
-            ...profile,
-          };
-        }
-
-        return null;
-      },
-    })
-  );
-}
-
 if (isAuthProviderEnabled('email')) {
   providers.push(
     EmailProvider({
@@ -265,8 +176,7 @@ export const getAuthOptions = (
   const isCredentialsProviderCallbackWithDbSession =
     (req as NextApiRequest).query &&
     (req as NextApiRequest).query.nextauth?.includes('callback') &&
-    ((req as NextApiRequest).query.nextauth?.includes('credentials') ||
-      (req as NextApiRequest).query.nextauth?.includes('boxyhq-idp')) &&
+    (req as NextApiRequest).query.nextauth?.includes('credentials') &&
     req.method === 'POST' &&
     env.nextAuth.sessionStrategy === 'database';
 
@@ -293,10 +203,9 @@ export const getAuthOptions = (
         }
 
         const existingUser = await getUser({ email: user.email });
-        const isIdpLogin = account.provider === 'boxyhq-idp';
 
         // Handle credentials provider
-        if (isCredentialsProviderCallbackWithDbSession && !isIdpLogin) {
+        if (isCredentialsProviderCallbackWithDbSession) {
           await createDatabaseSession(user, req, res);
         }
 
@@ -317,14 +226,6 @@ export const getAuthOptions = (
           });
 
           await linkAccount(newUser, account);
-
-          if (isIdpLogin && user) {
-            await linkToTeam(user as unknown as Profile, newUser.id);
-          }
-
-          if (account.provider === 'boxyhq-saml' && profile) {
-            await linkToTeam(profile, newUser.id);
-          }
 
           if (isCredentialsProviderCallbackWithDbSession) {
             await createDatabaseSession(newUser, req, res);
@@ -375,16 +276,7 @@ export const getAuthOptions = (
         return session;
       },
 
-      async jwt({ token, trigger, session, account }) {
-        if (trigger === 'signIn' && account?.provider === 'boxyhq-idp') {
-          const userByAccount = await adapter.getUserByAccount!({
-            providerAccountId: account.providerAccountId,
-            provider: account.provider,
-          });
-
-          return { ...token, sub: userByAccount?.id };
-        }
-
+      async jwt({ token, trigger, session }) {
         if (trigger === 'update' && 'name' in session && session.name) {
           return { ...token, name: session.name };
         }

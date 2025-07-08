@@ -1,7 +1,7 @@
 import micromatch from 'micromatch';
-import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 import env from './lib/env';
 
@@ -61,18 +61,16 @@ const unAuthenticatedRoutes = [
   '/api/health',
   '/api/auth/**',
   '/api/oauth/**',
-  '/api/scim/v2.0/**',
   '/api/invitations/*',
   '/api/webhooks/stripe',
-  '/api/webhooks/dsync',
   '/auth/**',
   '/invitations/*',
   '/terms-condition',
   '/unlock-account',
-  '/login/saml',
   '/.well-known/*',
 ];
 
+// Use NextAuth v4 middleware pattern
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -81,38 +79,16 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const redirectUrl = new URL('/auth/login', req.url);
-  redirectUrl.searchParams.set('callbackUrl', encodeURI(req.url));
+  // Check if user is authenticated
+  const token = await getToken({ req, secret: env.nextAuth.secret });
 
-  // JWT strategy
-  if (env.nextAuth.sessionStrategy === 'jwt') {
-    const token = await getToken({
-      req,
-    });
-
-    if (!token) {
-      return NextResponse.redirect(redirectUrl);
-    }
+  if (!token) {
+    const redirectUrl = new URL('/auth/login', req.url);
+    redirectUrl.searchParams.set('callbackUrl', encodeURI(req.url));
+    return NextResponse.redirect(redirectUrl);
   }
 
-  // Database strategy
-  else if (env.nextAuth.sessionStrategy === 'database') {
-    const url = new URL('/api/auth/session', req.url);
-
-    const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        cookie: req.headers.get('cookie') || '',
-      },
-    });
-
-    const session = await response.json();
-
-    if (!session.user) {
-      return NextResponse.redirect(redirectUrl);
-    }
-  }
-
+  // Set security headers
   const requestHeaders = new Headers(req.headers);
   const csp = generateCSP();
 
@@ -138,11 +114,12 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth/session (NextAuth session endpoint)
+     * - api/auth (NextAuth API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - public files
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/auth/session).*)',
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$).*)',
   ],
 };

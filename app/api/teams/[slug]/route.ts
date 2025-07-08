@@ -1,4 +1,3 @@
-import { sendAudit } from '@/lib/retraced';
 import { deleteTeam, getTeam, updateTeam, getTeamMember } from 'models/team';
 import { throwIfNotAllowed } from 'models/user';
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,7 +9,7 @@ import {
   validateWithSchema,
   teamSlugSchema,
 } from '@/lib/zod';
-import { Prisma, type Team } from '@prisma/client';
+import type { Prisma, Team } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { getAuthOptions } from '@/lib/nextAuth';
 
@@ -101,13 +100,6 @@ export async function PUT(
       throw error;
     }
 
-    sendAudit({
-      action: 'team.update',
-      crud: 'u',
-      user,
-      team: user.team,
-    });
-
     recordMetric('team.updated');
 
     return NextResponse.json({ data: updatedTeam });
@@ -135,13 +127,6 @@ export async function DELETE(
     throwIfNotAllowed(user, 'team', 'delete');
 
     await deleteTeam({ id: user.team.id });
-
-    sendAudit({
-      action: 'team.delete',
-      crud: 'd',
-      user,
-      team: user.team,
-    });
 
     recordMetric('team.removed');
 

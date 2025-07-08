@@ -6,11 +6,12 @@ import { signIn, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Button } from 'react-daisyui';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { useEffect } from 'react';
 
 interface MagicLinkProps {
   csrfToken: string | undefined;
@@ -71,12 +72,15 @@ const MagicLink = ({ csrfToken }: MagicLinkProps) => {
     }
   };
 
+  // Handle redirect when authenticated
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push(env.redirectIfAuthenticated);
+    }
+  }, [status, router]);
+
   if (status === 'loading') {
     return <Loading />;
-  }
-
-  if (status === 'authenticated') {
-    router.push(env.redirectIfAuthenticated);
   }
 
   return (
@@ -114,9 +118,6 @@ const MagicLink = ({ csrfToken }: MagicLinkProps) => {
             className="btn btn-outline w-full"
           >
             &nbsp;{t('sign-in-with-password')}
-          </Link>
-          <Link href="/auth/sso" className="btn btn-outline w-full">
-            &nbsp;{t('continue-with-saml-sso')}
           </Link>
         </div>
       </div>

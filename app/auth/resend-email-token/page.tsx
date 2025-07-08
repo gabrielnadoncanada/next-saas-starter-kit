@@ -6,7 +6,7 @@ import { defaultHeaders } from '@/lib/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resendEmailToken } from '@/lib/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Button } from 'react-daisyui';
 import type { ComponentStatus } from 'react-daisyui/dist/types';
 import { useForm } from 'react-hook-form';
@@ -16,7 +16,7 @@ import { z } from 'zod';
 
 type ResendEmailFormData = z.infer<typeof resendEmailToken>;
 
-export default function VerifyAccount() {
+function VerifyAccountContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [message, setMessage] = useState<{
@@ -98,5 +98,13 @@ export default function VerifyAccount() {
         </form>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function VerifyAccount() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyAccountContent />
+    </Suspense>
   );
 }

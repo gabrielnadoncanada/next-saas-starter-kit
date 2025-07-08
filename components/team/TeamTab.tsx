@@ -66,18 +66,6 @@ const TeamTab = ({ activeTab, team, heading, teamFeatures }: TeamTabProps) => {
   }
 
   if (
-    teamFeatures.auditLog &&
-    canAccess('team_audit_log', ['create', 'update', 'read', 'delete'])
-  ) {
-    navigations.push({
-      name: 'Audit Logs',
-      href: `/teams/${team.slug}/audit-logs`,
-      active: activeTab === 'audit-logs',
-      icon: DocumentMagnifyingGlassIcon,
-    });
-  }
-
-  if (
     teamFeatures.payments &&
     canAccess('team_payments', ['create', 'update', 'read', 'delete'])
   ) {

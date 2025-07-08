@@ -5,7 +5,6 @@ import app from '@/lib/app';
 import Providers from './providers';
 import { getLocale } from 'next-intl/server';
 
-import '@boxyhq/react-ui/dist/react-ui.css';
 import '../styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });

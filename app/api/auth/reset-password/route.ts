@@ -1,4 +1,4 @@
-import { hashPassword } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth-utils';
 import { ApiError } from '@/lib/errors';
 import { recordMetric } from '@/lib/metrics';
 import { unlockAccount } from '@/lib/accountLock';

@@ -1,5 +1,4 @@
 import { compare, hash } from 'bcryptjs';
-
 import env from './env';
 import type { AUTH_PROVIDER } from 'types';
 
@@ -24,7 +23,6 @@ export function authProviderEnabled() {
     github: isAuthProviderEnabled('github'),
     google: isAuthProviderEnabled('google'),
     email: isAuthProviderEnabled('email'),
-    saml: isAuthProviderEnabled('saml'),
     credentials: isAuthProviderEnabled('credentials'),
   };
 }

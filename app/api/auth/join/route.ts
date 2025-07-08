@@ -1,4 +1,4 @@
-import { hashPassword } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth-utils';
 import { slugify } from '@/lib/server-common';
 import { sendVerificationEmail } from '@/lib/email/sendVerificationEmail';
 import { isEmailAllowed } from '@/lib/email/utils';

@@ -23,16 +23,7 @@ const nextConfig = {
     ],
   },
   rewrites: async () => {
-    return [
-      {
-        source: '/.well-known/saml.cer',
-        destination: '/api/well-known/saml.cer',
-      },
-      {
-        source: '/.well-known/saml-configuration',
-        destination: '/well-known/saml-configuration',
-      },
-    ];
+    return [];
   },
   async headers() {
     return [
@@ -64,4 +55,7 @@ const sentryWebpackPluginOptions = {
   hideSourceMaps: true,
 };
 
-module.exports = withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions);
+module.exports = withSentryConfig(
+  withNextIntl(nextConfig),
+  sentryWebpackPluginOptions
+);

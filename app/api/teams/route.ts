@@ -4,13 +4,20 @@ import { ApiError } from '@/lib/errors';
 import { createTeam, getTeams, isTeamExists } from 'models/team';
 import { recordMetric } from '@/lib/metrics';
 import { createTeamSchema, validateWithSchema } from '@/lib/zod';
-import { getCurrentUser } from 'models/user';
+import { getServerSession } from 'next-auth/next';
+import { getAuthOptions } from '@/lib/nextAuth';
 
 // Get teams
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser(request as any, {} as any);
-    const teams = await getTeams(user.id);
+    const authOptions = getAuthOptions({} as any, {} as any);
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      throw new Error('Unauthorized');
+    }
+
+    const teams = await getTeams(session.user.id);
 
     recordMetric('team.fetched');
 
@@ -28,7 +35,13 @@ export async function POST(request: NextRequest) {
   try {
     const { name } = validateWithSchema(createTeamSchema, await request.json());
 
-    const user = await getCurrentUser(request as any, {} as any);
+    const authOptions = getAuthOptions({} as any, {} as any);
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      throw new Error('Unauthorized');
+    }
+
     const slug = slugify(name);
 
     if (await isTeamExists(slug)) {
@@ -36,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     const team = await createTeam({
-      userId: user.id,
+      userId: session.user.id,
       name,
       slug,
     });

@@ -1,26 +1,25 @@
 import { Role } from '@prisma/client';
 
 type RoleType = (typeof Role)[keyof typeof Role];
-export type Action = 'create' | 'update' | 'read' | 'delete' | 'leave';
+export type Action = 'create' | 'read' | 'update' | 'delete';
 export type Resource =
   | 'team'
   | 'team_member'
   | 'team_invitation'
-  | 'team_sso'
-  | 'team_dsync'
-  | 'team_audit_log'
+  | 'team_api_key'
   | 'team_webhook'
-  | 'team_payments'
-  | 'team_api_key';
+  | 'team_billing'
+  | 'team_dsync'
+  | 'team_sso';
 
 type RolePermissions = {
   [role in RoleType]: Permission[];
 };
 
-export type Permission = {
+export interface Permission {
   resource: Resource;
   actions: Action[] | '*';
-};
+}
 
 export const availableRoles = [
   {
@@ -37,8 +36,8 @@ export const availableRoles = [
   },
 ];
 
-export const permissions: RolePermissions = {
-  OWNER: [
+export const permissions: Record<Role, Permission[]> = {
+  [Role.OWNER]: [
     {
       resource: 'team',
       actions: '*',
@@ -52,19 +51,7 @@ export const permissions: RolePermissions = {
       actions: '*',
     },
     {
-      resource: 'team_sso',
-      actions: '*',
-    },
-    {
-      resource: 'team_dsync',
-      actions: '*',
-    },
-    {
-      resource: 'team_audit_log',
-      actions: '*',
-    },
-    {
-      resource: 'team_payments',
+      resource: 'team_api_key',
       actions: '*',
     },
     {
@@ -72,14 +59,22 @@ export const permissions: RolePermissions = {
       actions: '*',
     },
     {
-      resource: 'team_api_key',
+      resource: 'team_billing',
+      actions: '*',
+    },
+    {
+      resource: 'team_dsync',
+      actions: '*',
+    },
+    {
+      resource: 'team_sso',
       actions: '*',
     },
   ],
-  ADMIN: [
+  [Role.ADMIN]: [
     {
       resource: 'team',
-      actions: '*',
+      actions: ['read', 'update'],
     },
     {
       resource: 'team_member',
@@ -90,15 +85,7 @@ export const permissions: RolePermissions = {
       actions: '*',
     },
     {
-      resource: 'team_sso',
-      actions: '*',
-    },
-    {
-      resource: 'team_dsync',
-      actions: '*',
-    },
-    {
-      resource: 'team_audit_log',
+      resource: 'team_api_key',
       actions: '*',
     },
     {
@@ -106,14 +93,50 @@ export const permissions: RolePermissions = {
       actions: '*',
     },
     {
-      resource: 'team_api_key',
+      resource: 'team_billing',
+      actions: ['read'],
+    },
+    {
+      resource: 'team_dsync',
+      actions: '*',
+    },
+    {
+      resource: 'team_sso',
       actions: '*',
     },
   ],
-  MEMBER: [
+  [Role.MEMBER]: [
     {
       resource: 'team',
-      actions: ['read', 'leave'],
+      actions: ['read'],
+    },
+    {
+      resource: 'team_member',
+      actions: ['read'],
+    },
+    {
+      resource: 'team_invitation',
+      actions: ['read'],
+    },
+    {
+      resource: 'team_api_key',
+      actions: ['read'],
+    },
+    {
+      resource: 'team_webhook',
+      actions: ['read'],
+    },
+    {
+      resource: 'team_billing',
+      actions: ['read'],
+    },
+    {
+      resource: 'team_dsync',
+      actions: ['read'],
+    },
+    {
+      resource: 'team_sso',
+      actions: ['read'],
     },
   ],
 };

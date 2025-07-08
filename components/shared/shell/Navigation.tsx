@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useParams, usePathname } from 'next/navigation';
 import TeamNavigation from './TeamNavigation';
 import UserNavigation from './UserNavigation';
 
 const Navigation = () => {
-  const { asPath, isReady, query } = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
   const [activePathname, setActivePathname] = useState<null | string>(null);
 
-  const { slug } = query as { slug: string };
+  const slug = params?.slug as string;
 
   useEffect(() => {
-    if (isReady && asPath) {
-      const activePathname = new URL(asPath, location.href).pathname;
-      setActivePathname(activePathname);
+    if (pathname) {
+      setActivePathname(pathname);
     }
-  }, [asPath, isReady]);
+  }, [pathname]);
 
-  const Navigation = () => {
+  const NavigationComponent = () => {
     if (slug) {
       return <TeamNavigation activePathname={activePathname} slug={slug} />;
     } else {
@@ -26,7 +26,7 @@ const Navigation = () => {
 
   return (
     <nav className="flex flex-1 flex-col">
-      <Navigation />
+      <NavigationComponent />
     </nav>
   );
 };
