@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/session';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { recordMetric } from '@/lib/metrics';
 import { ApiError } from '@/lib/errors';
 import env from '@/lib/env';
@@ -11,9 +12,11 @@ export async function PUT(request: NextRequest) {
   try {
     const data = validateWithSchema(updateAccountSchema, await request.json());
 
-    // For App Router, we need to adapt session handling
-    // TODO: This needs to be updated to work with App Router session handling
-    const session = await getSession(request as any, {} as any);
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      throw new ApiError(401, 'Unauthorized');
+    }
 
     if ('email' in data) {
       const allowEmailChange = env.confirmEmail === false;
@@ -28,13 +31,13 @@ export async function PUT(request: NextRequest) {
 
       const user = await getUser({ email: data.email });
 
-      if (user && user.id !== session?.user.id) {
+      if (user && user.id !== session.user.id) {
         throw new ApiError(400, 'Email already in use.');
       }
     }
 
     await updateUser({
-      where: { id: session?.user.id },
+      where: { id: session.user.id },
       data,
     });
 

@@ -1,9 +1,11 @@
-import { defaultHeaders } from '@/lib/common';
+'use client';
+
 import { availableRoles } from '@/lib/permissions';
 import { Team, TeamMember } from '@prisma/client';
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
-import type { ApiResponse } from 'types';
+import { useTransition } from 'react';
+import { updateMemberRoleAction } from '@/features/member';
 
 interface UpdateMemberRoleProps {
   team: Team;
@@ -12,31 +14,30 @@ interface UpdateMemberRoleProps {
 
 const UpdateMemberRole = ({ team, member }: UpdateMemberRoleProps) => {
   const t = useTranslations();
+  const [isPending, startTransition] = useTransition();
 
   const updateRole = async (member: TeamMember, role: string) => {
-    const response = await fetch(`/api/teams/${team.slug}/members`, {
-      method: 'PATCH',
-      headers: defaultHeaders,
-      body: JSON.stringify({
-        memberId: member.userId,
-        role,
-      }),
+    startTransition(async () => {
+      const result = await updateMemberRoleAction(
+        team.slug,
+        member.userId,
+        role as any
+      );
+
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(t('member-role-updated'));
     });
-
-    const json = (await response.json()) as ApiResponse;
-
-    if (!response.ok) {
-      toast.error(json.error.message);
-      return;
-    }
-
-    toast.success(t('member-role-updated'));
   };
 
   return (
     <select
       className="select select-bordered select-sm rounded"
       defaultValue={member.role}
+      disabled={isPending}
       onChange={(e) => updateRole(member, e.target.value)}
     >
       {availableRoles.map((role) => (

@@ -1,3 +1,3 @@
-export { default as Join } from './Join';
-export { default as JoinWithInvitation } from './JoinWithInvitation';
-export { default as ResetPasswordForm } from './ResetPassword';
+// Re-export from FSD structure
+export { Join, JoinWithInvitation } from '@/features/auth';
+export { ResetPassword as ResetPasswordForm } from '@/features/auth';

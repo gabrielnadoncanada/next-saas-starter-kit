@@ -1,3 +1,4 @@
+'use client';
 import { Input, InputProps } from 'react-daisyui';
 
 interface InputWithLabelProps extends InputProps {

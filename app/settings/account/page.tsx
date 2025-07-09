@@ -1,6 +1,6 @@
 'use client';
 
-import { UpdateAccount } from '@/components/account';
+import { UpdateAccount } from '@/features/account';
 import { Loading, Error } from '@/components/shared';
 import { useSession } from 'next-auth/react';
 import env from '@/lib/env';

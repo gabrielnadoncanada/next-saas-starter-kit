@@ -1,35 +1,35 @@
-'use client';
-
-import { Error, Loading } from '@/components/shared';
+import { notFound } from 'next/navigation';
 import { AccessControl } from '@/components/shared/AccessControl';
-import { RemoveTeam, TeamSettings, TeamTab } from '@/components/team';
+import { TeamTab, EditTeam, DeleteTeam } from '@/features/team';
+import { getTeamBySlug } from '@/lib/data-fetchers';
 import env from '@/lib/env';
-import useTeam from 'hooks/useTeam';
 import type { TeamFeature } from 'types';
 
-export default function Settings() {
-  const { isLoading, isError, team } = useTeam();
-  const teamFeatures: TeamFeature = env.teamFeatures;
+interface Props {
+  params: {
+    slug: string;
+  };
+}
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (isError) {
-    return <Error message={isError.message} />;
-  }
+export default async function Settings({ params }: Props) {
+  const team = await getTeamBySlug(params.slug);
 
   if (!team) {
-    return <Error message="Team not found" />;
+    notFound();
   }
+
+  const teamFeatures: TeamFeature = env.teamFeatures;
 
   return (
     <>
       <TeamTab activeTab="settings" team={team} teamFeatures={teamFeatures} />
       <div className="space-y-6">
-        <TeamSettings teamSlug={team.slug} />
+        <EditTeam teamSlug={team.slug} />
         <AccessControl resource="team" actions={['delete']}>
-          <RemoveTeam team={team} allowDelete={teamFeatures.deleteTeam} />
+          <DeleteTeam
+            teamSlug={team.slug}
+            allowDelete={teamFeatures.deleteTeam}
+          />
         </AccessControl>
       </div>
     </>

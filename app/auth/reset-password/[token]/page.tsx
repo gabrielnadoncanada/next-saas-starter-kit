@@ -1,4 +1,4 @@
-import { ResetPasswordForm } from '@/components/auth';
+import { ResetPassword } from '@/features/auth';
 import { AuthLayout } from '@/components/layouts';
 
 interface ResetPasswordPageProps {
@@ -14,7 +14,7 @@ export default async function ResetPasswordPage({
 
   return (
     <AuthLayout heading="Reset Password" description="Enter your new password">
-      <ResetPasswordForm token={token} />
+      <ResetPassword token={token} />
     </AuthLayout>
   );
 }

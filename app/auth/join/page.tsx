@@ -9,7 +9,7 @@ import { useEffect, Suspense } from 'react';
 import { authProviderEnabled } from '@/lib/auth-utils';
 import GithubButton from '@/components/auth/GithubButton';
 import GoogleButton from '@/components/auth/GoogleButton';
-import { JoinWithInvitation, Join } from '@/components/auth';
+import { JoinWithInvitation, Join } from '@/features/auth';
 import { Loading } from '@/components/shared';
 import env from '@/lib/env';
 

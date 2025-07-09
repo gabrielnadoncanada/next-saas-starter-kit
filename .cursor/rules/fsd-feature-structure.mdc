@@ -1,0 +1,72 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Feature Sliced Architecture — Feature Structure
+
+This project follows the Feature-Sliced Design (FSD) architecture for organizing business features. Each feature (such as `invoice`, `client`, `auth`, etc.) is structured into subfolders that reflect user intents (`create`, `edit`, `list`, `view`, etc.), and shares logic internally via a `shared/` folder. Global logic is always extracted into the root-level `shared/`.
+
+## Canonical Feature Structure
+
+features/
+└── feature/
+    ├── create/
+    │   ├── ui/                 # Pure UI rendering components only (no logic)
+    │   ├── actions/            # Server-side actions (create/update/etc.)
+    │   ├── hooks/              # Logic hooks (e.g., useInvoiceForm)
+    │   ├── schema/             # Zod schemas for validation
+    │   └── model/              # Supabase interactions, db read/write logic
+    │   └── types/              # Feature-local types
+    │   └── Feature.tsx         # Orchestrator component
+    ├── edit/
+    │   ├── ui/
+    │   ├── actions/
+    │   ├── schema/
+    │   └── model/
+    ├── list/
+    │   ├── actions/
+    │   └── model/
+    ├── view/
+    │   ├── actions/
+    │   └── model/
+    ├── shared/
+    │   ├── model/
+    │   ├── hooks/
+    │   ├── types/
+    │   ├── schema/
+    │   └── lib/
+
+- Use `shared/` within a feature for logic reused inside the feature only.
+- Use the root-level `shared/` for cross-feature logic (auth, i18n, formatting, etc).
+- Always separate **UI rendering** (`ui/`) from **business logic orchestration** (`model/`).
+- Place all **form logic** (state management, field handlers, submission, redirect logic) inside a hook like `useFeatureForm.ts` located in `hooks//`.
+- Keep `ui/` components strictly presentational: no `useState`, `useEffect`, `router`, or business logic.
+- Always separate UI rendering (ui/) from business logic orchestration (hooks/).
+
+## Naming Conventions
+
+- Server action: `*.action.ts` (e.g., `createInvoice.action.ts`)
+- DB interaction: `verbEntity[].ts` (e.g., `fetchInvoice.ts`)
+- React Hook: `use*` (e.g., `useInvoiceForm.ts`)
+- Zod Schema: `*.schema.ts` (e.g., `invoice.base.schema.ts`)
+- Pure util function: `verbEntity.ts` (e.g., `formatInvoiceDate.ts`)
+- UI Component: `ComponentView.tsx` (e.g., `ProductFormView.tsx`)
+
+## Global Shared Structure
+
+shared/
+├── lib/
+│   ├── auth/
+│   ├── date/
+│   ├── currency/
+├── schema/
+├── types/
+├── services/
+├── ui/
+├── config/
+
+- Place cross-feature utilities in the root `shared/` folder.
+- Never mix intent folders (e.g., don't call `getInvoice` from `edit/` if it lives in `create/`).
+
+- We are using VITEST for testing and each test file should be at the proper place in the proper feature and in the subfolder __tests__

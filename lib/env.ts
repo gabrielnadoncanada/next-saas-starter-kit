@@ -67,6 +67,7 @@ const env = {
   teamFeatures: {
     sso: false,
     dsync: false,
+    auditLog: false,
     webhook: process.env.FEATURE_TEAM_WEBHOOK !== 'false',
     apiKey: process.env.FEATURE_TEAM_API_KEY !== 'false',
     payments:

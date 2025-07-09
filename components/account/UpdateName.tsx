@@ -6,6 +6,9 @@ import { Button } from 'react-daisyui';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Card, InputWithLabel } from '@/components/shared';
 import { defaultHeaders } from '@/lib/common';
@@ -26,18 +29,29 @@ type UpdateNameFormData = z.infer<typeof nameSchema>;
 
 const UpdateName = ({ name }: UpdateNameProps) => {
   const t = useTranslations();
+  const { update } = useSession();
+  const router = useRouter();
+
+  // Use local state to track the current name
+  const [currentName, setCurrentName] = useState(name);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty, isValid },
+    reset,
   } = useForm<UpdateNameFormData>({
     resolver: zodResolver(nameSchema),
     defaultValues: {
-      name,
+      name: currentName,
     },
     mode: 'onChange',
   });
+
+  // Update local state when prop changes
+  useEffect(() => {
+    setCurrentName(name);
+  }, [name]);
 
   const onSubmit = async (values: UpdateNameFormData) => {
     const response = await fetch('/api/users', {
@@ -46,14 +60,25 @@ const UpdateName = ({ name }: UpdateNameProps) => {
       body: JSON.stringify(values),
     });
 
-    const json = await response.json();
-
     if (!response.ok) {
+      const json = await response.json();
       toast.error(json.error.message);
       return;
     }
 
+    // Update the session with the new name
+    await update({ name: values.name });
+
+    // Update local state immediately to reflect the change in UI
+    setCurrentName(values.name);
+
+    // Reset the form to mark it as not dirty since we've successfully updated
+    reset({ name: values.name });
+
     toast.success(t('successfully-updated'));
+
+    // Refresh the page to update all components with the new session data
+    router.refresh();
   };
 
   return (
@@ -64,6 +89,11 @@ const UpdateName = ({ name }: UpdateNameProps) => {
             <Card.Header>
               <Card.Title>{t('name')}</Card.Title>
               <Card.Description>{t('update-your-name')}</Card.Description>
+              {currentName && (
+                <div className="text-sm text-gray-600 mt-1">
+                  Current name: {currentName}
+                </div>
+              )}
             </Card.Header>
             <div className="flex flex-col space-y-3">
               <InputWithLabel

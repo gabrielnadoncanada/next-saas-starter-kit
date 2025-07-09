@@ -19,7 +19,12 @@
     "noImplicitAny": false,
     "paths": {
       "@/lib/*": ["lib/*"],
+      "@/features/*": ["features/*"],
       "@/components/*": ["components/*"],
+      "@/models/*": ["models/*"],
+      "@/shared/*": ["shared/*"],
+      "@/types/*": ["types/*"],
+      "@/hooks/*": ["hooks/*"],
     },
     "plugins": [
       {

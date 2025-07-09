@@ -1,6 +1,6 @@
 import env from '@/lib/env';
-import { UpdatePassword } from '@/components/account';
-import ManageSessions from '@/components/account/ManageSessions';
+import { UpdatePassword } from '@/features/account';
+import { ManageSessions } from '@/features/account';
 
 export default function Security() {
   const { sessionStrategy } = env.nextAuth;

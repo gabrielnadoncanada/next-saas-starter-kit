@@ -1,35 +1,31 @@
-'use client';
-
-import { PendingInvitations } from '@/components/invitation';
-import { Error, Loading } from '@/components/shared';
-import { Members, TeamTab } from '@/components/team';
+import { PendingInvitations } from '@/features/invitation';
+import { Error } from '@/components/shared';
+import { MembersClient } from '@/components/team';
+import { TeamTab } from '@/features/team';
 import env from '@/lib/env';
-import useTeam from 'hooks/useTeam';
+import { getTeamWithMembers } from '@/lib/data-fetchers';
 import type { TeamFeature } from 'types';
 
-export default function TeamMembers() {
-  const { isLoading, isError, team } = useTeam();
+interface TeamMembersProps {
+  params: { slug: string };
+}
+
+export default async function TeamMembers({ params }: TeamMembersProps) {
   const teamFeatures: TeamFeature = env.teamFeatures;
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  try {
+    const { team, members } = await getTeamWithMembers(params.slug);
 
-  if (isError) {
-    return <Error message={isError.message} />;
-  }
-
-  if (!team) {
+    return (
+      <>
+        <TeamTab activeTab="members" team={team} teamFeatures={teamFeatures} />
+        <div className="space-y-6">
+          <MembersClient team={team} members={members} />
+          <PendingInvitations teamSlug={team.slug} />
+        </div>
+      </>
+    );
+  } catch (error) {
     return <Error message="Team not found" />;
   }
-
-  return (
-    <>
-      <TeamTab activeTab="members" team={team} teamFeatures={teamFeatures} />
-      <div className="space-y-6">
-        <Members team={team} />
-        <PendingInvitations team={team} />
-      </div>
-    </>
-  );
 }

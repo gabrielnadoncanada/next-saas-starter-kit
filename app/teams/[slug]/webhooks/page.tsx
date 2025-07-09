@@ -1,38 +1,34 @@
-'use client';
-
-import { Error, Loading } from '@/components/shared';
-import { TeamTab } from '@/components/team';
-import { Webhooks } from '@/components/webhook';
-import useTeam from 'hooks/useTeam';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { TeamTab } from '@/features/team/shared/ui/TeamTab';
+import { WebhooksList } from '@/features/webhook';
+import { getTeamBySlug } from '@/lib/data-fetchers';
 import env from '@/lib/env';
 import type { TeamFeature } from 'types';
 
-export default function WebhookList() {
-  const { isLoading, isError, team } = useTeam();
-  const teamFeatures: TeamFeature = env.teamFeatures;
+interface Props {
+  params: {
+    slug: string;
+  };
+}
 
+export default async function WebhookList({ params }: Props) {
   // Redirect if webhook feature is not enabled
   if (!env.teamFeatures.webhook) {
     redirect('/404');
   }
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (isError) {
-    return <Error message={isError.message} />;
-  }
+  const team = await getTeamBySlug(params.slug);
 
   if (!team) {
-    return <Error message="Team not found" />;
+    notFound();
   }
+
+  const teamFeatures: TeamFeature = env.teamFeatures;
 
   return (
     <>
       <TeamTab activeTab="webhooks" team={team} teamFeatures={teamFeatures} />
-      <Webhooks team={team} />
+      <WebhooksList teamSlug={team.slug} />
     </>
   );
 }

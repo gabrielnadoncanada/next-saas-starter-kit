@@ -1,3 +1,4 @@
+'use client';
 import { Input, InputProps } from 'react-daisyui';
 
 import { CopyToClipboardButton } from '@/components/shared';

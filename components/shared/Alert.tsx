@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { Alert as AlertCore, AlertProps } from 'react-daisyui';
 
