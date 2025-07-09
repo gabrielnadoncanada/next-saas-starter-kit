@@ -1,6 +1,16 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
-import { Button } from 'react-daisyui';
-import Modal from './Modal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/lib/components/ui/alert-dialog';
 
 interface ConfirmationDialogProps {
   title: string;
@@ -29,18 +39,30 @@ const ConfirmationDialog = ({
   };
 
   return (
-    <Modal open={visible} close={onCancel}>
-      <Modal.Header>{title}</Modal.Header>
-      <Modal.Body className="text-sm leading-6">{children}</Modal.Body>
-      <Modal.Footer>
-        <Button type="button" variant="outline" onClick={onCancel} size="md">
-          {cancelText || t('cancel')}
-        </Button>
-        <Button type="button" color="error" onClick={handleConfirm} size="md">
-          {confirmText || t('delete')}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+    <AlertDialog
+      open={visible}
+      onOpenChange={(isOpen) => !isOpen && onCancel()}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div className="text-sm leading-6">{children}</div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onCancel}>
+            {cancelText || t('cancel')}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {confirmText || t('delete')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 

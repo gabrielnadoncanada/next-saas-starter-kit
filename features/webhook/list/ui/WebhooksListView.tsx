@@ -3,7 +3,7 @@
 import { WithLoadingAndError, EmptyState } from '@/components/shared';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog';
 import { Table } from '@/components/shared/table/Table';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import type { EndpointOut } from 'svix';
 
@@ -46,9 +46,7 @@ export function WebhooksListView({
               {t('webhooks-description')}
             </p>
           </div>
-          <Button color="primary" size="md" onClick={onCreateClick}>
-            {t('add-webhook')}
-          </Button>
+          <Button onClick={onCreateClick}>{t('add-webhook')}</Button>
         </div>
         {webhooks?.length === 0 ? (
           <EmptyState title={t('no-webhook-title')} />

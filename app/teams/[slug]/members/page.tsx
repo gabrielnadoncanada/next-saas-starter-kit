@@ -1,7 +1,7 @@
 import { PendingInvitations } from '@/features/invitation';
 import { Error } from '@/components/shared';
-import { MembersClient } from '@/components/team';
-import { TeamTab } from '@/features/team';
+import { TeamTab } from '@/features/team/shared/ui/TeamTab';
+import { MembersClient } from '@/features/member';
 import env from '@/lib/env';
 import { getTeamWithMembers } from '@/lib/data-fetchers';
 import type { TeamFeature } from 'types';

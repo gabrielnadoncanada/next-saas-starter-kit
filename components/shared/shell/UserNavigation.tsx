@@ -7,7 +7,11 @@ import { useTranslations } from 'next-intl';
 import NavigationItems from './NavigationItems';
 import { MenuItem, NavigationProps } from './NavigationItems';
 
-const UserNavigation = ({ activePathname }: NavigationProps) => {
+interface UserNavigationProps extends NavigationProps {
+  title?: string;
+}
+
+const UserNavigation = ({ activePathname, title }: UserNavigationProps) => {
   const t = useTranslations();
 
   const menus: MenuItem[] = [
@@ -31,7 +35,7 @@ const UserNavigation = ({ activePathname }: NavigationProps) => {
     },
   ];
 
-  return <NavigationItems menus={menus} />;
+  return <NavigationItems menus={menus} title={title} />;
 };
 
 export default UserNavigation;

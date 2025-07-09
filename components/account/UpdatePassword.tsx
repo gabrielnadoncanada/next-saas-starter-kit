@@ -2,12 +2,20 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
 
-import { Card, InputWithLabel } from '@/components/shared';
+import { InputWithLabel } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 import { defaultHeaders } from '@/lib/common';
 import { updatePasswordSchema } from '@/lib/zod';
 
@@ -52,11 +60,11 @@ const UpdatePassword = () => {
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card>
-          <Card.Body>
-            <Card.Header>
-              <Card.Title>{t('password')}</Card.Title>
-              <Card.Description>{t('change-password-text')}</Card.Description>
-            </Card.Header>
+          <CardHeader>
+            <CardTitle>{t('password')}</CardTitle>
+            <CardDescription>{t('change-password-text')}</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="flex flex-col space-y-3">
               <InputWithLabel
                 {...register('currentPassword')}
@@ -83,20 +91,17 @@ const UpdatePassword = () => {
                 className="text-sm"
               />
             </div>
-          </Card.Body>
-          <Card.Footer>
+          </CardContent>
+          <CardFooter>
             <div className="flex justify-end">
               <Button
                 type="submit"
-                color="primary"
-                loading={isSubmitting}
-                disabled={!isDirty || !isValid}
-                size="md"
+                disabled={isSubmitting || !isDirty || !isValid}
               >
                 {t('change-password')}
               </Button>
             </div>
-          </Card.Footer>
+          </CardFooter>
         </Card>
       </form>
     </>

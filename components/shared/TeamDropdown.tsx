@@ -12,12 +12,27 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React from 'react';
 import { maxLengthPolicies } from '@/lib/common';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/lib/components/ui/dropdown-menu';
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from '@/lib/components/ui/sidebar';
 
 const TeamDropdown = () => {
   const params = useParams();
   const { teams } = useTeams();
   const { data } = useSession();
   const t = useTranslations();
+  const { isMobile } = useSidebar();
 
   const currentTeam = (teams || []).find((team) => team.slug === params?.slug);
 
@@ -64,56 +79,67 @@ const TeamDropdown = () => {
     },
   ];
 
+  const displayName =
+    currentTeam?.name ||
+    data?.user?.name?.substring(0, maxLengthPolicies.nameShortDisplay);
+
   return (
-    <div className="dropdown w-full">
-      <div
-        tabIndex={0}
-        className="border border-gray-300 dark:border-gray-600 flex h-10 items-center px-4 justify-between cursor-pointer rounded text-sm font-bold"
-      >
-        {currentTeam?.name ||
-          data?.user?.name?.substring(
-            0,
-            maxLengthPolicies.nameShortDisplay
-          )}{' '}
-        <ChevronUpDownIcon className="w-5 h-5" />
-      </div>
-      <ul
-        tabIndex={0}
-        className="dropdown-content dark:border-gray-600 p-2 shadow-md bg-base-100 w-full rounded border px-2"
-      >
-        {menus.map(({ id, name, items }) => {
-          return (
-            <React.Fragment key={id}>
-              {name && (
-                <li
-                  className="text-xs text-gray-500 py-1 px-2"
-                  key={`${id}-name`}
-                >
-                  {name}
-                </li>
-              )}
-              {items.map((item) => (
-                <li
-                  key={`${id}-${item.id}`}
-                  onClick={() => {
-                    if (document.activeElement) {
-                      (document.activeElement as HTMLElement).blur();
-                    }
-                  }}
-                >
-                  <Link href={item.href}>
-                    <div className="flex hover:bg-gray-100 hover:dark:text-black focus:bg-gray-100 focus:outline-none py-2 px-2 rounded text-sm font-medium gap-2 items-center">
-                      <item.icon className="w-5 h-5" /> {item.name}
-                    </div>
-                  </Link>
-                </li>
-              ))}
-              {name && <li className="divider m-0" key={`${id}-divider`} />}
-            </React.Fragment>
-          );
-        })}
-      </ul>
-    </div>
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                {currentTeam ? (
+                  <FolderIcon className="size-4" />
+                ) : (
+                  <UserCircleIcon className="size-4" />
+                )}
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">{displayName}</span>
+                <span className="truncate text-xs">
+                  {currentTeam ? t('team') : t('personal')}
+                </span>
+              </div>
+              <ChevronUpDownIcon className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            align="start"
+            side={isMobile ? 'bottom' : 'right'}
+            sideOffset={4}
+          >
+            {menus.map(({ id, name, items }) => {
+              return (
+                <React.Fragment key={id}>
+                  {name && (
+                    <DropdownMenuLabel className="text-xs text-muted-foreground">
+                      {name}
+                    </DropdownMenuLabel>
+                  )}
+                  {items.map((item) => (
+                    <DropdownMenuItem key={`${id}-${item.id}`} asChild>
+                      <Link href={item.href} className="gap-2 p-2">
+                        <div className="flex size-6 items-center justify-center rounded-sm border">
+                          <item.icon className="size-4 shrink-0" />
+                        </div>
+                        {item.name}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  {name && <DropdownMenuSeparator key={`${id}-divider`} />}
+                </React.Fragment>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 };
 

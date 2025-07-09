@@ -1,4 +1,4 @@
-import type { ComponentStatus } from 'react-daisyui/dist/types';
+export type ComponentStatus = 'info' | 'success' | 'warning' | 'error';
 
 export interface Message {
   text: string | null;

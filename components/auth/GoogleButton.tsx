@@ -1,5 +1,5 @@
 import { signIn } from 'next-auth/react';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import useInvitation from 'hooks/useInvitation';
 import env from '@/lib/env';
@@ -20,7 +20,6 @@ const GoogleButton = () => {
           callbackUrl,
         });
       }}
-      size="md"
     >
       <svg
         className="mr-2 -ml-1 h-4 w-4"

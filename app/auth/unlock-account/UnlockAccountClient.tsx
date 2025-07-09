@@ -1,9 +1,13 @@
 'use client';
 
-import { Button } from 'react-daisyui';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import type { ComponentStatus } from 'react-daisyui/dist/types';
-import { Alert } from '@/components/shared';
+
+import { Alert, AlertDescription } from '@/lib/components/ui/alert';
+import { Button } from '@/lib/components/ui/button';
+import { InputWithLabel } from '@/components/shared';
+import type { ComponentStatus } from '@/shared/types/common';
 import { defaultHeaders } from '@/lib/common';
 
 interface UnlockAccountClientProps {
@@ -69,16 +73,17 @@ export default function UnlockAccountClient({
 
   return (
     <div className="rounded p-6 border">
-      {message.text && message.status && (
-        <Alert status={message.status}>{message.text}</Alert>
+      {message?.text && (
+        <Alert variant={message.status === 'error' ? 'destructive' : 'default'}>
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       )}
 
       {displayResendLink && (
         <Button
-          wide
-          className="mt-4 btn btn-outline w-full"
+          className="mt-4 w-full"
           onClick={requestNewLink}
-          loading={loading}
+          disabled={loading}
         >
           Request new link
         </Button>

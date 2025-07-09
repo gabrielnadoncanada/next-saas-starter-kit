@@ -1,4 +1,4 @@
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 
 import { Invitation } from '@prisma/client';
@@ -30,13 +30,7 @@ const EmailDomainMismatch = ({
       <p className="text-sm text-center">
         {t('accept-invitation-email-domain-instruction')}
       </p>
-      <Button
-        fullWidth
-        color="error"
-        size="md"
-        variant="outline"
-        onClick={signOut}
-      >
+      <Button variant="outline" onClick={signOut} className="w-full">
         {t('logout')}
       </Button>
     </>

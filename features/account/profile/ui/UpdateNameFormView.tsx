@@ -1,7 +1,15 @@
 'use client';
 
-import { Card, InputWithLabel } from '@/components/shared';
-import { Button } from 'react-daisyui';
+import { InputWithLabel } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
 import { UpdateNameFormData } from '@/features/account/shared/schema/account.schema';
@@ -28,16 +36,16 @@ export function UpdateNameFormView({
   return (
     <form onSubmit={onSubmit}>
       <Card>
-        <Card.Body>
-          <Card.Header>
-            <Card.Title>{t('name')}</Card.Title>
-            <Card.Description>{t('update-your-name')}</Card.Description>
-            {currentName && (
-              <div className="text-sm text-gray-600 mt-1">
-                Current name: {currentName}
-              </div>
-            )}
-          </Card.Header>
+        <CardHeader>
+          <CardTitle>{t('name')}</CardTitle>
+          <CardDescription>{t('update-your-name')}</CardDescription>
+          {currentName && (
+            <div className="text-sm text-gray-600 mt-1">
+              Current name: {currentName}
+            </div>
+          )}
+        </CardHeader>
+        <CardContent>
           <div className="flex flex-col space-y-3">
             <InputWithLabel
               {...register('name')}
@@ -46,20 +54,14 @@ export function UpdateNameFormView({
               error={errors.name?.message}
             />
           </div>
-        </Card.Body>
-        <Card.Footer>
+        </CardContent>
+        <CardFooter>
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              color="primary"
-              loading={isPending}
-              disabled={!isDirty || !isValid}
-              size="md"
-            >
+            <Button type="submit" disabled={isPending || !isDirty || !isValid}>
               {t('save-changes')}
             </Button>
           </div>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   );

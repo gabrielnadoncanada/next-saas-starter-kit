@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
@@ -10,7 +10,15 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Card, InputWithLabel } from '@/components/shared';
+import { InputWithLabel } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 import { defaultHeaders } from '@/lib/common';
 import { updateAccountSchema } from '@/lib/zod';
 
@@ -85,16 +93,16 @@ const UpdateName = ({ name }: UpdateNameProps) => {
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card>
-          <Card.Body>
-            <Card.Header>
-              <Card.Title>{t('name')}</Card.Title>
-              <Card.Description>{t('update-your-name')}</Card.Description>
-              {currentName && (
-                <div className="text-sm text-gray-600 mt-1">
-                  Current name: {currentName}
-                </div>
-              )}
-            </Card.Header>
+          <CardHeader>
+            <CardTitle>{t('name')}</CardTitle>
+            <CardDescription>{t('update-your-name')}</CardDescription>
+            {currentName && (
+              <div className="text-sm text-gray-600 mt-1">
+                Current name: {currentName}
+              </div>
+            )}
+          </CardHeader>
+          <CardContent>
             <div className="flex flex-col space-y-3">
               <InputWithLabel
                 {...register('name')}
@@ -103,20 +111,17 @@ const UpdateName = ({ name }: UpdateNameProps) => {
                 error={errors.name?.message}
               />
             </div>
-          </Card.Body>
-          <Card.Footer>
+          </CardContent>
+          <CardFooter>
             <div className="flex justify-end">
               <Button
                 type="submit"
-                color="primary"
-                loading={isSubmitting}
-                disabled={!isDirty || !isValid}
-                size="md"
+                disabled={isSubmitting || !isDirty || !isValid}
               >
                 {t('save-changes')}
               </Button>
             </div>
-          </Card.Footer>
+          </CardFooter>
         </Card>
       </form>
     </>

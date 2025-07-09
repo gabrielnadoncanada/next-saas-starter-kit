@@ -2,12 +2,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import type { ApiResponse } from 'types';
-import { Card, InputWithLabel } from '@/components/shared';
+import { InputWithLabel } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 import { defaultHeaders } from '@/lib/common';
 import type { User } from '@prisma/client';
 
@@ -59,13 +67,11 @@ const UpdateEmail = ({ user, allowEmailChange }: UpdateEmailProps) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card>
-        <Card.Body>
-          <Card.Header>
-            <Card.Title>{t('email-address')}</Card.Title>
-            <Card.Description>
-              {t('email-address-description')}
-            </Card.Description>
-          </Card.Header>
+        <CardContent>
+          <CardHeader>
+            <CardTitle>{t('email-address')}</CardTitle>
+            <CardDescription>{t('email-address-description')}</CardDescription>
+          </CardHeader>
           <InputWithLabel
             {...register('email')}
             type="email"
@@ -75,18 +81,12 @@ const UpdateEmail = ({ user, allowEmailChange }: UpdateEmailProps) => {
             disabled={!allowEmailChange}
             required
           />
-        </Card.Body>
-        <Card.Footer>
-          <Button
-            type="submit"
-            color="primary"
-            loading={isSubmitting}
-            disabled={!isDirty || !isValid}
-            size="md"
-          >
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" disabled={isSubmitting || !isDirty || !isValid}>
             {t('save-changes')}
           </Button>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   );

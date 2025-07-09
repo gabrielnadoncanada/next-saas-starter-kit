@@ -2,7 +2,7 @@
 
 import { InputWithLabel } from '@/components/shared';
 import { useTranslations } from 'next-intl';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import type { UseFormReturn } from 'react-hook-form';
 import type { ResetPasswordFormData } from '@/features/auth/shared/schema/signup.schema';
 
@@ -49,14 +49,7 @@ export function ResetPasswordFormView({
           />
         </div>
         <div className="mt-4">
-          <Button
-            type="submit"
-            color="primary"
-            loading={isPending}
-            active={isDirty}
-            fullWidth
-            size="md"
-          >
+          <Button type="submit" disabled={isPending} className="w-full">
             {t('reset-password')}
           </Button>
         </div>

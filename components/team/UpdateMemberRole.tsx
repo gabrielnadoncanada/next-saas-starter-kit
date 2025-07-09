@@ -6,6 +6,13 @@ import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 import { useTransition } from 'react';
 import { updateMemberRoleAction } from '@/features/member';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/lib/components/ui/select';
 
 interface UpdateMemberRoleProps {
   team: Team;
@@ -34,18 +41,22 @@ const UpdateMemberRole = ({ team, member }: UpdateMemberRoleProps) => {
   };
 
   return (
-    <select
-      className="select select-bordered select-sm rounded"
+    <Select
       defaultValue={member.role}
       disabled={isPending}
-      onChange={(e) => updateRole(member, e.target.value)}
+      onValueChange={(value) => updateRole(member, value)}
     >
-      {availableRoles.map((role) => (
-        <option value={role.id} key={role.id}>
-          {role.id}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="w-auto min-w-[120px]">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {availableRoles.map((role) => (
+          <SelectItem key={role.id} value={role.id}>
+            {role.id}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

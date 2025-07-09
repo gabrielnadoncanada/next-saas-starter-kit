@@ -1,4 +1,4 @@
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Price, Prisma, Service } from '@prisma/client';
 
@@ -40,12 +40,9 @@ export function PaymentButtonView({
   return (
     <Button
       key={`${plan.id}-${price.id}`}
-      color="primary"
       variant="outline"
-      size="md"
-      fullWidth
       onClick={handleClick}
-      className="rounded-full"
+      className="rounded-full w-full"
     >
       {buttonText}
     </Button>

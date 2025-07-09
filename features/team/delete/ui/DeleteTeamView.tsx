@@ -1,8 +1,15 @@
 'use client';
 
-import { Card } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 
 interface DeleteTeamViewProps {
@@ -27,28 +34,26 @@ export function DeleteTeamView({
   return (
     <>
       <Card>
-        <Card.Body>
-          <Card.Header>
-            <Card.Title>{t('remove-team')}</Card.Title>
-            <Card.Description>
+        <CardContent>
+          <CardHeader>
+            <CardTitle>{t('remove-team')}</CardTitle>
+            <CardDescription>
               {allowDelete
                 ? t('remove-team-warning')
                 : t('remove-team-restricted')}
-            </Card.Description>
-          </Card.Header>
-        </Card.Body>
+            </CardDescription>
+          </CardHeader>
+        </CardContent>
         {allowDelete && (
-          <Card.Footer>
+          <CardFooter>
             <Button
-              color="error"
+              variant="destructive"
               onClick={onDeleteClick}
-              loading={isPending}
-              variant="outline"
-              size="md"
+              disabled={isPending}
             >
               {t('remove-team')}
             </Button>
-          </Card.Footer>
+          </CardFooter>
         )}
       </Card>
       {allowDelete && (

@@ -1,7 +1,15 @@
 'use client';
 
-import { Card, InputWithLabel } from '@/components/shared';
-import { Button } from 'react-daisyui';
+import { InputWithLabel } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
 import { UpdatePasswordFormData } from '@/features/account/shared/schema/account.schema';
@@ -26,11 +34,11 @@ export function UpdatePasswordFormView({
   return (
     <form onSubmit={onSubmit}>
       <Card>
-        <Card.Body>
-          <Card.Header>
-            <Card.Title>{t('password')}</Card.Title>
-            <Card.Description>{t('change-password-text')}</Card.Description>
-          </Card.Header>
+        <CardHeader>
+          <CardTitle>{t('password')}</CardTitle>
+          <CardDescription>{t('change-password-text')}</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="flex flex-col space-y-3">
             <InputWithLabel
               {...register('currentPassword')}
@@ -57,20 +65,14 @@ export function UpdatePasswordFormView({
               className="text-sm"
             />
           </div>
-        </Card.Body>
-        <Card.Footer>
+        </CardContent>
+        <CardFooter>
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              color="primary"
-              loading={isPending}
-              disabled={!isDirty || !isValid}
-              size="md"
-            >
+            <Button type="submit" disabled={isPending || !isDirty || !isValid}>
               {t('change-password')}
             </Button>
           </div>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   );

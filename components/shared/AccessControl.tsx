@@ -1,3 +1,5 @@
+'use client';
+
 import type { Action, Resource } from '@/lib/permissions';
 import useCanAccess from 'hooks/useCanAccess';
 

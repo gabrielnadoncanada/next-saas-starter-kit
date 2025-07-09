@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { Checkbox } from 'react-daisyui';
+import { Checkbox } from '@/lib/components/ui/checkbox';
 
 const CheckboxComponent = ({
   onChange,
@@ -22,9 +24,18 @@ const CheckboxComponent = ({
         <Checkbox
           name={name}
           value={value}
-          onChange={onChange}
+          onCheckedChange={(checked) => {
+            // Create a synthetic event to match the expected signature
+            const syntheticEvent = {
+              target: {
+                name,
+                value,
+                checked: Boolean(checked),
+              },
+            } as React.ChangeEvent<HTMLInputElement>;
+            onChange(syntheticEvent);
+          }}
           defaultChecked={Boolean(defaultChecked)}
-          className="h-4 w-4 rounded [--chkfg:oklch(var(--p))] [--chkbg:white]"
         />
         <span className="text-gray-700">{label}</span>
       </label>

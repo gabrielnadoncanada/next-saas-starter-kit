@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 
-import Alert from './Alert';
+import { Alert, AlertDescription } from '@/lib/components/ui/alert';
 
 interface ErrorProps {
   message?: string;
@@ -11,8 +11,10 @@ const Error = (props: ErrorProps) => {
   const t = useTranslations();
 
   return (
-    <Alert status="error" className="my-2">
-      <p>{message || t('unknown-error')}</p>
+    <Alert variant="destructive" className="my-2">
+      <AlertDescription>
+        <p>{message || t('unknown-error')}</p>
+      </AlertDescription>
     </Alert>
   );
 };

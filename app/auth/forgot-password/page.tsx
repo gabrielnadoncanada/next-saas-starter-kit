@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { forgotPasswordSchema } from '@/lib/zod';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
@@ -76,14 +76,7 @@ export default function ForgotPassword() {
             />
           </div>
           <div className="mt-4">
-            <Button
-              type="submit"
-              color="primary"
-              loading={isSubmitting}
-              active={isDirty}
-              fullWidth
-              size="md"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-full">
               Email Password Reset Link
             </Button>
           </div>

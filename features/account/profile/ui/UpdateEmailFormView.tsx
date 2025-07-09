@@ -1,7 +1,15 @@
 'use client';
 
-import { Card, InputWithLabel } from '@/components/shared';
-import { Button } from 'react-daisyui';
+import { InputWithLabel } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
 import { UpdateEmailFormData } from '@/features/account/shared/schema/account.schema';
@@ -28,13 +36,11 @@ export function UpdateEmailFormView({
   return (
     <form onSubmit={onSubmit}>
       <Card>
-        <Card.Body>
-          <Card.Header>
-            <Card.Title>{t('email-address')}</Card.Title>
-            <Card.Description>
-              {t('email-address-description')}
-            </Card.Description>
-          </Card.Header>
+        <CardHeader>
+          <CardTitle>{t('email-address')}</CardTitle>
+          <CardDescription>{t('email-address-description')}</CardDescription>
+        </CardHeader>
+        <CardContent>
           <InputWithLabel
             {...register('email')}
             type="email"
@@ -44,18 +50,15 @@ export function UpdateEmailFormView({
             disabled={!allowEmailChange}
             required
           />
-        </Card.Body>
-        <Card.Footer>
+        </CardContent>
+        <CardFooter>
           <Button
             type="submit"
-            color="primary"
-            loading={isPending}
-            disabled={!isDirty || !isValid || !allowEmailChange}
-            size="md"
+            disabled={isPending || !isDirty || !isValid || !allowEmailChange}
           >
             {t('save-changes')}
           </Button>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   );

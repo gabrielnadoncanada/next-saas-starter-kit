@@ -4,7 +4,7 @@ import { LetterAvatar } from '@/components/shared';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useState, useEffect, useTransition } from 'react';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import toast from 'react-hot-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ConfirmationDialog from '../shared/ConfirmationDialog';
@@ -69,11 +69,7 @@ const TeamsClient = ({ teams: initialTeams }: TeamsClientProps) => {
             {t('team-listed')}
           </p>
         </div>
-        <Button
-          color="primary"
-          size="md"
-          onClick={() => setCreateTeamVisible(!createTeamVisible)}
-        >
+        <Button onClick={() => setCreateTeamVisible(!createTeamVisible)}>
           {t('create-team')}
         </Button>
       </div>

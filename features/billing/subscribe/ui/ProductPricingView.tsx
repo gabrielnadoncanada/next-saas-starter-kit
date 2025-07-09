@@ -1,4 +1,4 @@
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { Price, Service, Subscription } from '@prisma/client';
 import { PaymentButtonView } from './PaymentButtonView';
@@ -42,10 +42,8 @@ export function ProductPricingView({
                     <Button
                       key={price.id}
                       variant="outline"
-                      size="md"
-                      fullWidth
                       disabled
-                      className="rounded-full"
+                      className="rounded-full w-full"
                     >
                       {t('current')}
                     </Button>

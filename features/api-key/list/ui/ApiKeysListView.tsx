@@ -3,7 +3,7 @@
 import { EmptyState } from '@/components/shared';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog';
 import { Table } from '@/components/shared/table/Table';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 
 interface ApiKeysListViewProps {
@@ -40,9 +40,7 @@ export function ApiKeysListView({
             {t('api-keys-description')}
           </p>
         </div>
-        <Button color="primary" size="md" onClick={onCreateClick}>
-          {t('create-api-key')}
-        </Button>
+        <Button onClick={onCreateClick}>{t('create-api-key')}</Button>
       </div>
 
       {apiKeys.length === 0 ? (

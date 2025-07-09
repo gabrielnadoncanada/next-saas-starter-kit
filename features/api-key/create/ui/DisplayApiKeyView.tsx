@@ -1,7 +1,7 @@
 'use client';
 
 import { InputWithCopyButton } from '@/components/shared';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 
 interface DisplayApiKeyViewProps {
@@ -29,7 +29,7 @@ export function DisplayApiKeyView({ apiKey, onClose }: DisplayApiKeyViewProps) {
       />
 
       <div className="flex justify-end">
-        <Button type="button" variant="outline" onClick={onClose} size="md">
+        <Button type="button" variant="outline" onClick={onClose}>
           {t('close')}
         </Button>
       </div>

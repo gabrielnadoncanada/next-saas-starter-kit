@@ -3,11 +3,16 @@ import { useTranslations } from 'next-intl';
 import NavigationItems from './NavigationItems';
 import { NavigationProps, MenuItem } from './NavigationItems';
 
-interface NavigationItemsProps extends NavigationProps {
+interface TeamNavigationProps extends NavigationProps {
   slug: string;
+  title?: string;
 }
 
-const TeamNavigation = ({ slug, activePathname }: NavigationItemsProps) => {
+const TeamNavigation = ({
+  slug,
+  activePathname,
+  title,
+}: TeamNavigationProps) => {
   const t = useTranslations();
 
   const menus: MenuItem[] = [
@@ -27,7 +32,7 @@ const TeamNavigation = ({ slug, activePathname }: NavigationItemsProps) => {
     },
   ];
 
-  return <NavigationItems menus={menus} />;
+  return <NavigationItems menus={menus} title={title} />;
 };
 
 export default TeamNavigation;

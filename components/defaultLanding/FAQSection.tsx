@@ -1,5 +1,10 @@
 import { useTranslations } from 'next-intl';
-import { Card } from 'react-daisyui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 
 import faqs from './data/faq.json';
 
@@ -20,10 +25,12 @@ const FAQSection = () => {
             {faqs.map((faq, index) => {
               return (
                 <Card key={index} className="border-none">
-                  <Card.Body className="items-left dark:border-gray-200 border border-gray-300">
-                    <Card.Title tag="h2">Q. {faq.question}</Card.Title>
+                  <CardContent className="items-left dark:border-gray-200 border border-gray-300">
+                    <CardHeader>
+                      <CardTitle>Q. {faq.question}</CardTitle>
+                    </CardHeader>
                     <p>A. {faq.answer}</p>
-                  </Card.Body>
+                  </CardContent>
                 </Card>
               );
             })}

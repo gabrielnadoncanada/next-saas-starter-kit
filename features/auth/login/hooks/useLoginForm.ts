@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession, getCsrfToken } from 'next-auth/react';
 import { useTransition } from 'react';
-import type { ComponentStatus } from 'react-daisyui/dist/types';
+import type { ComponentStatus } from '@/shared/types/common';
 import type ReCAPTCHA from 'react-google-recaptcha';
 
 import { loginSchema, type LoginFormData } from '../schema/login.schema';

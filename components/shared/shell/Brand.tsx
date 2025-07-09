@@ -1,18 +1,28 @@
 import app from '@/lib/app';
 import Image from 'next/image';
 import useTheme from 'hooks/useTheme';
+import { useSidebar } from '@/lib/components/ui/sidebar';
 
 const Brand = () => {
   const { theme } = useTheme();
+  const { state } = useSidebar();
+
   return (
-    <div className="flex pt-6 shrink-0 items-center text-xl font-bold gap-2 dark:text-gray-100">
+    <div
+      className={`flex items-center gap-2 ${state === 'expanded' ? 'px-2' : ''} py-1`}
+    >
       <Image
         src={theme !== 'dark' ? app.logoUrl : '/logowhite.png'}
         alt={app.name}
-        width={30}
-        height={30}
+        width={32}
+        height={27}
+        className="flex-shrink-0"
       />
-      {app.name}
+      {state === 'expanded' && (
+        <span className="text-lg font-bold text-sidebar-foreground truncate">
+          {app.name}
+        </span>
+      )}
     </div>
   );
 };

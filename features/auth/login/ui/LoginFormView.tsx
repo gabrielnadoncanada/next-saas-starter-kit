@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from 'react-daisyui';
-import type { ComponentStatus } from 'react-daisyui/dist/types';
+import { Button } from '@/lib/components/ui/button';
+import type { ComponentStatus } from '@/shared/types/common';
 import type { UseFormReturn } from 'react-hook-form';
 import type { RefObject } from 'react';
 import type ReCAPTCHA from 'react-google-recaptcha';
 
-import { Alert, InputWithLabel, Loading } from '@/components/shared';
+import { InputWithLabel, Loading } from '@/components/shared';
+import { Alert, AlertDescription } from '@/lib/components/ui/alert';
 import TogglePasswordVisibility from '@/components/shared/TogglePasswordVisibility';
 import GoogleReCAPTCHA from '@/components/shared/GoogleReCAPTCHA';
 import GithubButton from '@/components/auth/GithubButton';
@@ -71,8 +72,11 @@ export function LoginFormView({
   return (
     <>
       {message.text && message.status && (
-        <Alert status={message.status} className="mb-5">
-          {message.text}
+        <Alert
+          variant={message.status === 'error' ? 'destructive' : 'default'}
+          className="mb-5"
+        >
+          <AlertDescription>{message.text}</AlertDescription>
         </Alert>
       )}
 
@@ -134,14 +138,7 @@ export function LoginFormView({
             </div>
 
             <div className="mt-3 space-y-3">
-              <Button
-                type="submit"
-                color="primary"
-                loading={isPending}
-                active={isDirty}
-                fullWidth
-                size="md"
-              >
+              <Button type="submit" disabled={isPending} className="w-full">
                 Sign In
               </Button>
             </div>

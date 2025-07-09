@@ -1,6 +1,11 @@
 'use client';
 
-import Modal from '@/components/shared/Modal';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/lib/components/ui/dialog';
 import { useTranslations } from 'next-intl';
 import { InviteViaEmail } from '@/features/invitation/send/InviteViaEmail';
 
@@ -22,14 +27,21 @@ export function InviteMember({
   };
 
   return (
-    <Modal open={visible} close={() => setVisible(false)}>
-      <Modal.Header>{t('invite-new-member')}</Modal.Header>
-      <Modal.Body>
-        <div className="grid grid-cols-1 divide-y py-2">
-          <InviteViaEmail teamSlug={teamSlug} onSuccess={handleSuccess} />
-          {/* TODO: Add InviteViaLink component when needed */}
+    <Dialog
+      open={visible}
+      onOpenChange={(isOpen) => !isOpen && setVisible(false)}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('invite-new-member')}</DialogTitle>
+        </DialogHeader>
+        <div className="py-3">
+          <div className="grid grid-cols-1 divide-y py-2">
+            <InviteViaEmail teamSlug={teamSlug} onSuccess={handleSuccess} />
+            {/* TODO: Add InviteViaLink component when needed */}
+          </div>
         </div>
-      </Modal.Body>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

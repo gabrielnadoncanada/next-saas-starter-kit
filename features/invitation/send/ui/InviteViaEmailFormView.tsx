@@ -1,7 +1,14 @@
 'use client';
 
 import { InputWithLabel } from '@/components/shared';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/lib/components/ui/select';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
 import { InviteViaEmailFormData } from '@/features/invitation/shared/schema/invitation.schema';
@@ -21,7 +28,11 @@ export function InviteViaEmailFormView({
   const {
     register,
     formState: { errors, isDirty },
+    setValue,
+    watch,
   } = form;
+
+  const currentRole = watch('role');
 
   return (
     <div className="space-y-3 py-3">
@@ -43,18 +54,23 @@ export function InviteViaEmailFormView({
           required
         />
 
-        <div className="form-control w-full">
-          <label className="label">
-            <span className="label-text">{t('role')}</span>
+        <div className="space-y-2">
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            {t('role')}
           </label>
-          <select
-            {...register('role')}
-            className="select select-bordered w-full"
+          <Select
+            value={currentRole}
+            onValueChange={(value) => setValue('role', value as any)}
           >
-            <option value="MEMBER">{t('member')}</option>
-            <option value="ADMIN">{t('admin')}</option>
-            <option value="OWNER">{t('owner')}</option>
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t('select-role')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="MEMBER">{t('member')}</SelectItem>
+              <SelectItem value="ADMIN">{t('admin')}</SelectItem>
+              <SelectItem value="OWNER">{t('owner')}</SelectItem>
+            </SelectContent>
+          </Select>
           {errors.role && (
             <div className="text-red-500 text-sm mt-1">
               {errors.role.message}
@@ -62,13 +78,7 @@ export function InviteViaEmailFormView({
           )}
         </div>
 
-        <Button
-          type="submit"
-          color="primary"
-          loading={isPending}
-          disabled={!isDirty}
-          size="md"
-        >
+        <Button type="submit" disabled={isPending || !isDirty}>
           {t('send-invite')}
         </Button>
       </form>

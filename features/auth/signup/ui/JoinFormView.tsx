@@ -2,7 +2,7 @@
 
 import { InputWithLabel } from '@/components/shared';
 import { useTranslations } from 'next-intl';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import TogglePasswordVisibility from '@/components/shared/TogglePasswordVisibility';
 import AgreeMessage from '@/components/auth/AgreeMessage';
 import GoogleReCAPTCHA from '@/components/shared/GoogleReCAPTCHA';
@@ -84,14 +84,7 @@ export function JoinFormView({
         />
       </div>
       <div className="mt-3 space-y-3">
-        <Button
-          type="submit"
-          color="primary"
-          loading={isPending}
-          active={isDirty}
-          fullWidth
-          size="md"
-        >
+        <Button type="submit" disabled={isPending} className="w-full">
           {t('create-account')}
         </Button>
         <AgreeMessage text={t('create-account')} />

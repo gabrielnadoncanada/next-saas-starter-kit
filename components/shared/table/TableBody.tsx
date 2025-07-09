@@ -1,12 +1,7 @@
-import { Button } from 'react-daisyui';
-import Badge from '@/components/shared/Badge';
+import { TableCell, TableRow } from '@/lib/components/ui/table';
+import { Button } from '@/lib/components/ui/button';
+import { Badge } from '@/lib/components/ui/badge';
 import { useTranslations } from 'next-intl';
-
-const trClass =
-  'border-b bg-white last:border-b-0 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800';
-const tdClassBase = 'px-6 py-3 text-sm text-gray-500 dark:text-gray-400';
-const tdClass = `whitespace-nowrap ${tdClassBase}`;
-const tdClassWrap = `break-all ${tdClassBase}`;
 
 interface TableBodyCell {
   wrap?: boolean;
@@ -48,29 +43,27 @@ export const TableBody = ({
 
   if (noMoreResults) {
     return (
-      <tbody>
-        <tr>
-          <td
-            colSpan={cols.length}
-            className="px-6 py-3 text-center text-sm text-gray-500"
-          >
-            {t('no-more-results')}
-          </td>
-        </tr>
-      </tbody>
+      <TableRow>
+        <TableCell
+          colSpan={cols.length}
+          className="text-center text-muted-foreground"
+        >
+          {t('no-more-results')}
+        </TableCell>
+      </TableRow>
     );
   }
 
   return (
-    <tbody>
+    <>
       {body.map((row) => {
         return (
-          <tr key={row.id} className={trClass}>
+          <TableRow key={row.id}>
             {row.cells?.map((cell: any, index: number) => {
               return (
-                <td
+                <TableCell
                   key={row.id + '-td-' + index}
-                  className={`${cell.wrap ? tdClassWrap : tdClass}`}
+                  className={cell.wrap ? 'break-all' : 'whitespace-nowrap'}
                   style={
                     cell.minWidth ? { minWidth: `${cell.minWidth}px` } : {}
                   }
@@ -81,8 +74,7 @@ export const TableBody = ({
                         return (
                           <Button
                             key={row.id + '-button-' + index}
-                            size="xs"
-                            color={button.color}
+                            size="sm"
                             variant="outline"
                             onClick={button.onClick}
                           >
@@ -114,16 +106,22 @@ export const TableBody = ({
                     </span>
                   )}
                   {cell.badge ? (
-                    <Badge color={cell.badge.color}>{cell.badge.text}</Badge>
+                    <Badge
+                      variant={
+                        cell.badge.color === 'error' ? 'destructive' : 'default'
+                      }
+                    >
+                      {cell.badge.text}
+                    </Badge>
                   ) : null}
                   {cell.text ? cell.text : null}
                   {cell.element ? cell.element : null}
-                </td>
+                </TableCell>
               );
             })}
-          </tr>
+          </TableRow>
         );
       })}
-    </tbody>
+    </>
   );
 };

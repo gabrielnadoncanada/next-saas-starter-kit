@@ -1,6 +1,7 @@
+'use client';
+
 import {
   Cog6ToothIcon,
-  DocumentMagnifyingGlassIcon,
   KeyIcon,
   PaperAirplaneIcon,
   ShieldExclamationIcon,
@@ -8,10 +9,10 @@ import {
   BanknotesIcon,
 } from '@heroicons/react/24/outline';
 import type { Team } from '@prisma/client';
-import classNames from 'classnames';
 import useCanAccess from 'hooks/useCanAccess';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { TeamFeature } from 'types';
+import { Tabs, TabsList, TabsTrigger } from '@/lib/components/ui/tabs';
 
 interface TeamTabProps {
   activeTab: string;
@@ -27,12 +28,13 @@ export function TeamTab({
   teamFeatures,
 }: TeamTabProps) {
   const { canAccess } = useCanAccess();
+  const router = useRouter();
 
   const navigations = [
     {
       name: 'Settings',
+      value: 'settings',
       href: `/teams/${team.slug}/settings`,
-      active: activeTab === 'settings',
       icon: Cog6ToothIcon,
     },
   ];
@@ -40,8 +42,8 @@ export function TeamTab({
   if (canAccess('team_member', ['create', 'update', 'read', 'delete'])) {
     navigations.push({
       name: 'Members',
+      value: 'members',
       href: `/teams/${team.slug}/members`,
-      active: activeTab === 'members',
       icon: UserPlusIcon,
     });
   }
@@ -52,8 +54,8 @@ export function TeamTab({
   ) {
     navigations.push({
       name: 'Single Sign-On',
+      value: 'sso',
       href: `/teams/${team.slug}/sso`,
-      active: activeTab === 'sso',
       icon: ShieldExclamationIcon,
     });
   }
@@ -64,8 +66,8 @@ export function TeamTab({
   ) {
     navigations.push({
       name: 'Directory Sync',
+      value: 'directory-sync',
       href: `/teams/${team.slug}/directory-sync`,
-      active: activeTab === 'directory-sync',
       icon: UserPlusIcon,
     });
   }
@@ -76,8 +78,8 @@ export function TeamTab({
   ) {
     navigations.push({
       name: 'Billing',
+      value: 'payments',
       href: `/teams/${team.slug}/billing`,
-      active: activeTab === 'payments',
       icon: BanknotesIcon,
     });
   }
@@ -88,8 +90,8 @@ export function TeamTab({
   ) {
     navigations.push({
       name: 'Webhooks',
+      value: 'webhooks',
       href: `/teams/${team.slug}/webhooks`,
-      active: activeTab === 'webhooks',
       icon: PaperAirplaneIcon,
     });
   }
@@ -100,38 +102,38 @@ export function TeamTab({
   ) {
     navigations.push({
       name: 'API Keys',
+      value: 'api-keys',
       href: `/teams/${team.slug}/api-keys`,
-      active: activeTab === 'api-keys',
       icon: KeyIcon,
     });
   }
 
+  const handleTabChange = (value: string) => {
+    const navigation = navigations.find((nav) => nav.value === value);
+    if (navigation) {
+      router.push(navigation.href);
+    }
+  };
+
   return (
     <div className="flex flex-col pb-6">
-      <h2 className="text-xl font-semibold mb-2">
+      <h2 className="text-xl font-semibold mb-4">
         {heading ? heading : team.name}
       </h2>
-      <nav
-        className=" flex flex-wrap border-b border-gray-300"
-        aria-label="Tabs"
-      >
-        {navigations.map((menu) => {
-          return (
-            <Link
-              href={menu.href}
-              key={menu.href}
-              className={classNames(
-                'inline-flex items-center border-b-2 py-2 md-py-4 mr-5 text-sm font-medium',
-                menu.active
-                  ? 'border-gray-900 text-gray-700 dark:text-gray-100'
-                  : 'border-transparent text-gray-500 hover:border-gray-300  hover:text-gray-700 hover:dark:text-gray-100'
-              )}
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList className="h-auto w-full justify-start">
+          {navigations.map((menu) => (
+            <TabsTrigger
+              key={menu.value}
+              value={menu.value}
+              className="flex items-center gap-2"
             >
+              <menu.icon className="h-4 w-4" />
               {menu.name}
-            </Link>
-          );
-        })}
-      </nav>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
     </div>
   );
 }

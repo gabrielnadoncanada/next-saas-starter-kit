@@ -1,6 +1,12 @@
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { useTranslations } from 'next-intl';
-import { Button, Card } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 
 import plans from './data/pricing.json';
 
@@ -24,10 +30,12 @@ const PricingSection = () => {
                   key={`plan-${index}`}
                   className="rounded-md dark:border-gray-200 border border-gray-300"
                 >
-                  <Card.Body>
-                    <Card.Title tag="h2">
-                      {plan.currency} {plan.amount} / {plan.duration}
-                    </Card.Title>
+                  <CardContent>
+                    <CardHeader>
+                      <CardTitle>
+                        {plan.currency} {plan.amount} / {plan.duration}
+                      </CardTitle>
+                    </CardHeader>
                     <p>{plan.description}</p>
                     <div className="mt-5">
                       <ul className="flex flex-col space-y-2">
@@ -46,16 +54,12 @@ const PricingSection = () => {
                         )}
                       </ul>
                     </div>
-                  </Card.Body>
-                  <Card.Actions className="justify-center m-2">
-                    <Button
-                      color="primary"
-                      className="md:w-full w-3/4 rounded-md"
-                      size="md"
-                    >
-                      {t('buy-now')}
-                    </Button>
-                  </Card.Actions>
+                    <div className="flex justify-center mt-4">
+                      <Button className="md:w-full w-3/4 rounded-md">
+                        {t('buy-now')}
+                      </Button>
+                    </div>
+                  </CardContent>
                 </Card>
               );
             })}

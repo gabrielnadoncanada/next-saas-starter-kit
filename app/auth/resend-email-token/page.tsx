@@ -1,14 +1,15 @@
 'use client';
 
 import { AuthLayout } from '@/components/layouts';
-import { Alert, InputWithLabel } from '@/components/shared';
+import { InputWithLabel } from '@/components/shared';
+import { Alert, AlertDescription } from '@/lib/components/ui/alert';
 import { defaultHeaders } from '@/lib/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resendEmailToken } from '@/lib/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
-import { Button } from 'react-daisyui';
-import type { ComponentStatus } from 'react-daisyui/dist/types';
+import { Button } from '@/lib/components/ui/button';
+import type { ComponentStatus } from '@/shared/types/common';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { ApiResponse } from 'types';
@@ -70,7 +71,9 @@ function VerifyAccountContent() {
   return (
     <AuthLayout heading="Verify your account">
       {message.text && message.status && (
-        <Alert status={message.status}>{message.text}</Alert>
+        <Alert variant={message.status === 'error' ? 'destructive' : 'default'}>
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       )}
       <div className="rounded p-6 border">
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -84,14 +87,7 @@ function VerifyAccountContent() {
             />
           </div>
           <div className="mt-4">
-            <Button
-              type="submit"
-              color="primary"
-              loading={isSubmitting}
-              active={isDirty}
-              fullWidth
-              size="md"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-full">
               Resend link
             </Button>
           </div>

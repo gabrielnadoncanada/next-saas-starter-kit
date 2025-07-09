@@ -1,14 +1,21 @@
 'use client';
 
 import toast from 'react-hot-toast';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowUpCircleIcon } from '@heroicons/react/24/outline';
 
 import type { ApiResponse } from 'types';
 import type { User } from '@prisma/client';
-import { Card } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 import { defaultHeaders } from '@/lib/common';
 
 const UploadAvatar = ({ user }: { user: Partial<User> }) => {
@@ -88,14 +95,14 @@ const UploadAvatar = ({ user }: { user: Partial<User> }) => {
   return (
     <form onSubmit={handleSubmit}>
       <Card>
-        <Card.Body>
-          <Card.Header>
-            <Card.Title>{t('avatar')}</Card.Title>
-            <Card.Description>
-              {t('custom-avatar')} <br />
-              {t('avatar-type')}
-            </Card.Description>
-          </Card.Header>
+        <CardHeader>
+          <CardTitle>{t('avatar')}</CardTitle>
+          <CardDescription>
+            {t('custom-avatar')} <br />
+            {t('avatar-type')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div>
             <label
               htmlFor="image"
@@ -157,18 +164,15 @@ const UploadAvatar = ({ user }: { user: Partial<User> }) => {
               />
             </div>
           </div>
-        </Card.Body>
-        <Card.Footer>
+        </CardContent>
+        <CardFooter>
           <Button
             type="submit"
-            color="primary"
-            size="md"
-            disabled={!image || image === user.image}
-            loading={loading}
+            disabled={loading || !image || image === user.image}
           >
             {t('save-changes')}
           </Button>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   );

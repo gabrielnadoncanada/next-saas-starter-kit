@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
@@ -99,14 +99,7 @@ const MagicLink = ({ csrfToken }: MagicLinkProps) => {
               descriptionText="We'll email you a magic link for a password-free sign in."
               error={touchedFields.email ? errors.email?.message : undefined}
             />
-            <Button
-              type="submit"
-              color="primary"
-              loading={isSubmitting}
-              active={isDirty}
-              fullWidth
-              size="md"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-full">
               {t('send-magic-link')}
             </Button>
           </div>

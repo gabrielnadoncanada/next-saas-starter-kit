@@ -1,7 +1,13 @@
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
-import { Card } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
 
 interface PortalLinkViewProps {
   loading: boolean;
@@ -13,25 +19,24 @@ export function PortalLinkView({ loading, onOpenPortal }: PortalLinkViewProps) {
 
   return (
     <Card>
-      <Card.Body>
-        <Card.Header>
-          <Card.Title>{t('manage-subscription')}</Card.Title>
-          <Card.Description>{t('manage-billing-information')}</Card.Description>
-        </Card.Header>
+      <CardContent>
+        <CardHeader>
+          <CardTitle>{t('manage-subscription')}</CardTitle>
+          <CardDescription>{t('manage-billing-information')}</CardDescription>
+        </CardHeader>
         <div>
           <Button
             type="button"
-            color="primary"
             size="sm"
             variant="outline"
-            loading={loading}
+            disabled={loading}
             onClick={onOpenPortal}
           >
             {t('billing-portal')}
             <ArrowTopRightOnSquareIcon className="w-5 h-5 ml-2" />
           </Button>
         </div>
-      </Card.Body>
+      </CardContent>
     </Card>
   );
 }

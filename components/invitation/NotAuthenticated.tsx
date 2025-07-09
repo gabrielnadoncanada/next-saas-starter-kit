@@ -1,4 +1,4 @@
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useRouter } from 'next/router';
 import { useTranslations } from 'next-intl';
 
@@ -17,21 +17,19 @@ const NotAuthenticated = ({ invitation }: NotAuthenticatedProps) => {
       <h3 className="text-center">{t('invite-create-account')}</h3>
       <Button
         variant="outline"
-        fullWidth
         onClick={() => {
           router.push(`/auth/join?token=${invitation.token}`);
         }}
-        size="md"
+        className="w-full"
       >
         {t('create-a-new-account')}
       </Button>
       <Button
         variant="outline"
-        fullWidth
         onClick={() => {
           router.push(`/auth/login?token=${invitation.token}`);
         }}
-        size="md"
+        className="w-full"
       >
         {t('login')}
       </Button>

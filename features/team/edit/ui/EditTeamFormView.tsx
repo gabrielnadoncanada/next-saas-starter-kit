@@ -1,7 +1,15 @@
 'use client';
 
-import { Card, InputWithLabel } from '@/components/shared';
-import { Button } from 'react-daisyui';
+import { InputWithLabel } from '@/components/shared';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/lib/components/ui/card';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
 
@@ -25,13 +33,11 @@ export function EditTeamFormView({
   return (
     <form onSubmit={onSubmit}>
       <Card>
-        <Card.Body>
-          <Card.Header>
-            <Card.Title>{t('team-settings')}</Card.Title>
-            <Card.Description>
-              {t('team-settings-description')}
-            </Card.Description>
-          </Card.Header>
+        <CardContent>
+          <CardHeader>
+            <CardTitle>{t('team-settings')}</CardTitle>
+            <CardDescription>{t('team-settings-description')}</CardDescription>
+          </CardHeader>
           <div className="flex flex-col space-y-4">
             <InputWithLabel
               {...register('name')}
@@ -49,20 +55,14 @@ export function EditTeamFormView({
               error={errors.domain?.message as string}
             />
           </div>
-        </Card.Body>
-        <Card.Footer>
+        </CardContent>
+        <CardFooter>
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              color="primary"
-              loading={isPending}
-              disabled={!isValid || !isDirty}
-              size="md"
-            >
+            <Button type="submit" disabled={isPending || !isValid || !isDirty}>
               {t('save-changes')}
             </Button>
           </div>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </form>
   );

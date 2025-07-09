@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/shared/Modal';
+import { Dialog, DialogContent } from '@/lib/components/ui/dialog';
 import { useCreateApiKeyForm } from './hooks/useCreateApiKeyForm';
 import { CreateApiKeyFormView } from './ui/CreateApiKeyFormView';
 import { DisplayApiKeyView } from './ui/DisplayApiKeyView';
@@ -34,17 +34,22 @@ export function CreateApiKey({
   };
 
   return (
-    <Modal open={visible} close={toggleVisible}>
-      {apiKey === '' ? (
-        <CreateApiKeyFormView
-          form={form}
-          onSubmit={handleSubmit}
-          onClose={toggleVisible}
-          isPending={isPending}
-        />
-      ) : (
-        <DisplayApiKeyView apiKey={apiKey} onClose={toggleVisible} />
-      )}
-    </Modal>
+    <Dialog
+      open={visible}
+      onOpenChange={(isOpen) => !isOpen && toggleVisible()}
+    >
+      <DialogContent>
+        {apiKey === '' ? (
+          <CreateApiKeyFormView
+            form={form}
+            onSubmit={handleSubmit}
+            onClose={toggleVisible}
+            isPending={isPending}
+          />
+        ) : (
+          <DisplayApiKeyView apiKey={apiKey} onClose={toggleVisible} />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

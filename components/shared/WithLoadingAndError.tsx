@@ -1,4 +1,5 @@
-import { Alert, Loading } from '@/components/shared';
+import { Loading } from '@/components/shared';
+import { Alert, AlertDescription } from '@/lib/components/ui/alert';
 
 interface WithLoadingAndErrorProps {
   isLoading: boolean;
@@ -14,7 +15,11 @@ const WithLoadingAndError = (props: WithLoadingAndErrorProps) => {
   }
 
   if (error) {
-    return <Alert status="error">{error.message}</Alert>;
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error.message}</AlertDescription>
+      </Alert>
+    );
   }
 
   return <>{children}</>;

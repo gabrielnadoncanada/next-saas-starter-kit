@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from 'react-daisyui';
+import { Button } from '@/lib/components/ui/button';
 import { useTranslations } from 'next-intl';
 
 import { LetterAvatar } from '@/components/shared';
@@ -61,11 +61,7 @@ export function MembersListView({
             {t('members-description')}
           </p>
         </div>
-        <Button
-          color="primary"
-          size="md"
-          onClick={() => setInviteVisible(!inviteVisible)}
-        >
+        <Button onClick={() => setInviteVisible(!inviteVisible)}>
           {t('add-member')}
         </Button>
       </div>
