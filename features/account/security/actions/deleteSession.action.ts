@@ -26,7 +26,7 @@ export async function deleteSessionAction(sessionId: string) {
       },
     });
 
-    revalidatePath('/settings/security');
+    revalidatePath('/settings/account');
 
     return {
       success: true,
