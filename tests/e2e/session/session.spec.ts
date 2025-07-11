@@ -2,12 +2,11 @@ import { test as base } from '@playwright/test';
 
 import { prisma } from '@/lib/prisma';
 import { user, team } from '../support/helper';
-import { LoginPage, SecurityPage, SettingsPage } from '../support/fixtures';
+import { LoginPage, SecurityPage } from '../support/fixtures';
 
 type SessionFixture = {
   loginPage: LoginPage;
   securityPage: SecurityPage;
-  settingsPage: SettingsPage;
 };
 
 const test = base.extend<SessionFixture>({
@@ -21,11 +20,6 @@ const test = base.extend<SessionFixture>({
     // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(ssoPage);
   },
-  settingsPage: async ({ page }, use) => {
-    const settingsPage = new SettingsPage(page, user.name);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    await use(settingsPage);
-  },
 });
 
 test.beforeEach(async ({ loginPage }) => {
@@ -38,16 +32,14 @@ test.afterEach(async () => {
   await prisma.session.deleteMany();
 });
 
-test('Session is shown in security page ', async ({
-  settingsPage,
-  securityPage,
-}) => {
-  await settingsPage.gotoSection('security');
+test('Session is shown in account page ', async ({ securityPage }) => {
+  await securityPage.page.goto('/settings/account');
+  await securityPage.page.waitForURL('/settings/account');
 
   await securityPage.checkCurrentSession();
 });
 
-test('2 session are shown in security page ', async ({ browser }) => {
+test('2 session are shown in account page ', async ({ browser }) => {
   // Create a new incognito browser context.
   const context = await browser.newContext();
   // Create a new incognito browser context.
@@ -57,8 +49,8 @@ test('2 session are shown in security page ', async ({ browser }) => {
   await loginPage1.credentialLogin(user.email, user.password);
   await loginPage1.loggedInCheck(team.slug);
 
-  const settingsPage = new SettingsPage(page1, team.slug);
-  await settingsPage.gotoSection('security');
+  await page1.goto('/settings/account');
+  await page1.waitForURL('/settings/account');
 
   const securityPage = new SecurityPage(page1);
   await securityPage.isPageVisible();
@@ -79,8 +71,8 @@ test('On Remove session user logs out', async ({ browser }) => {
   await loginPage1.credentialLogin(user.email, user.password);
   await loginPage1.loggedInCheck(team.slug);
 
-  const settingsPage = new SettingsPage(page1, team.slug);
-  await settingsPage.gotoSection('security');
+  await page1.goto('/settings/account');
+  await page1.waitForURL('/settings/account');
 
   const securityPage = new SecurityPage(page1);
   await securityPage.isPageVisible();

@@ -1,6 +1,5 @@
 import {
   RectangleStackIcon,
-  ShieldCheckIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
@@ -26,12 +25,6 @@ const UserNavigation = ({ activePathname, title }: UserNavigationProps) => {
       href: '/settings/account',
       icon: UserCircleIcon,
       active: activePathname === '/settings/account',
-    },
-    {
-      name: t('security'),
-      href: '/settings/security',
-      icon: ShieldCheckIcon,
-      active: activePathname === '/settings/security',
     },
   ];
 

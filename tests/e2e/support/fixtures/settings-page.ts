@@ -170,7 +170,7 @@ export class SettingsPage {
     ).toBeVisible();
   }
 
-  async gotoSection(pageName: 'security' | 'api-keys') {
+  async gotoSection(pageName: 'api-keys') {
     await this.page.goto(`/settings/${pageName}`);
     await this.page.waitForURL(`/settings/${pageName}`);
   }
