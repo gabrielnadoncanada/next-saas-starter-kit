@@ -69,9 +69,7 @@ export class LoginPage {
     this.joinTeamButton = this.page.getByRole('button', {
       name: 'Join the Team',
     });
-    this.mockSAMLLoginHeading = this.page.getByRole('heading', {
-      name: 'SAML SSO Login',
-    });
+
     this.pageHeading = this.page.getByRole('heading', {
       name: pageHeading,
     });

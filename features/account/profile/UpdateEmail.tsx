@@ -5,7 +5,7 @@ import { UpdateEmailFormView } from './ui/UpdateEmailFormView';
 import type { User } from '@prisma/client';
 
 interface UpdateEmailProps {
-  user: Partial<User>;
+  user: User;
   allowEmailChange: boolean;
 }
 

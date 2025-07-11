@@ -4,7 +4,7 @@ import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { getUser } from 'models/user';
+import { getUser } from '@/shared/model/user';
 import { verifyPassword } from '@/lib/auth-utils';
 import { isEmailAllowed } from '@/lib/email/utils';
 import env from '@/lib/env';
@@ -19,7 +19,7 @@ import {
 } from '@/lib/accountLock';
 import { slackNotify } from '@/lib/slack';
 import { maxLengthPolicies } from '@/lib/common';
-import { createUser } from 'models/user';
+import { createUser } from '@/shared/model/user';
 
 const adapter = PrismaAdapter(prisma);
 const providers: any[] = [];

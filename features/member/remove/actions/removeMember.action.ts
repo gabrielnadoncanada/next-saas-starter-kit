@@ -2,7 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { removeMemberSchema } from '../schema/removeMember.schema';
-import { removeTeamMember, getTeamMember } from '@/models/team';
+import {
+  removeTeamMember,
+  getTeamMember,
+  isLastOwnerOfTeam,
+} from '@/features/team/shared/model/team';
 import { getCurrentUser } from '@/lib/data-fetchers';
 import { validateMembershipOperation } from '@/lib/rbac';
 
@@ -47,6 +51,16 @@ export async function removeMemberAction(teamSlug: string, userId: string) {
 
     if (!memberToRemove) {
       return { error: 'Member not found' };
+    }
+
+    // Check if the member to be removed is the last owner of the team
+    const isLastOwner = await isLastOwnerOfTeam(userId, memberToRemove.teamId);
+
+    if (isLastOwner) {
+      return {
+        error:
+          'Cannot remove the last owner of the team. Please transfer ownership to another member first.',
+      };
     }
 
     // Remove the team member

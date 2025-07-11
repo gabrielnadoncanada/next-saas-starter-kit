@@ -18,14 +18,12 @@ interface UpdateNameFormViewProps {
   form: UseFormReturn<UpdateNameFormData>;
   onSubmit: () => void;
   isPending: boolean;
-  currentName: string;
 }
 
 export function UpdateNameFormView({
   form,
   onSubmit,
   isPending,
-  currentName,
 }: UpdateNameFormViewProps) {
   const t = useTranslations();
   const {
@@ -39,11 +37,6 @@ export function UpdateNameFormView({
         <CardHeader>
           <CardTitle>{t('name')}</CardTitle>
           <CardDescription>{t('update-your-name')}</CardDescription>
-          {currentName && (
-            <div className="text-sm text-gray-600 mt-1">
-              Current name: {currentName}
-            </div>
-          )}
         </CardHeader>
         <CardContent>
           <div className="flex flex-col space-y-3">

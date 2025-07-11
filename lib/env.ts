@@ -22,12 +22,6 @@ const env = {
       'jwt') as SessionStrategy,
   },
 
-  // Svix
-  svix: {
-    url: `${process.env.SVIX_URL}`,
-    apiKey: `${process.env.SVIX_API_KEY}`,
-  },
-
   //Social login: Github
   github: {
     clientId: `${process.env.GITHUB_CLIENT_ID}`,

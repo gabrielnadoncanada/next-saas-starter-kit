@@ -85,20 +85,8 @@ export const permissions: Record<Role, Permission[]> = {
       actions: '*',
     },
     {
-      resource: 'team_api_key',
-      actions: '*',
-    },
-    {
-      resource: 'team_webhook',
-      actions: '*',
-    },
-    {
       resource: 'team_billing',
       actions: ['read'],
-    },
-    {
-      resource: 'team_dsync',
-      actions: '*',
     },
     {
       resource: 'team_sso',

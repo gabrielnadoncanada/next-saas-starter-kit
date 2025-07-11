@@ -4,7 +4,7 @@ import { LetterAvatar, WithLoadingAndError } from '@/components/shared';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog';
 import { Table } from '@/components/shared/table/Table';
 import { useTranslations } from 'next-intl';
-import type { TeamInvitation } from 'models/invitation';
+import type { TeamInvitation } from '@/features/invitation/shared/model/invitation';
 
 interface PendingInvitationsViewProps {
   invitations: TeamInvitation[];

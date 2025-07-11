@@ -2,8 +2,6 @@
 const createNextIntlPlugin = require('next-intl/plugin');
 const withNextIntl = createNextIntlPlugin();
 
-const { withSentryConfig } = require('@sentry/nextjs');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -48,14 +46,4 @@ const nextConfig = {
   },
 };
 
-// Additional config options for the Sentry webpack plugin.
-// For all available options: https://github.com/getsentry/sentry-webpack-plugin#options.
-const sentryWebpackPluginOptions = {
-  silent: true,
-  hideSourceMaps: true,
-};
-
-module.exports = withSentryConfig(
-  withNextIntl(nextConfig),
-  sentryWebpackPluginOptions
-);
+module.exports = withNextIntl(nextConfig);

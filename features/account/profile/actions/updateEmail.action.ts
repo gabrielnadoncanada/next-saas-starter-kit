@@ -3,7 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
 import { updateEmailSchema } from '@/features/account/shared/schema/account.schema';
-import { defaultHeaders } from '@/lib/common';
+import { updateUser } from '@/shared/model/user';
+import { getUser } from '@/shared/model/user';
+import { isEmailAllowed } from '@/lib/email/utils';
+import env from '@/lib/env';
 
 export async function updateEmailAction(formData: FormData) {
   try {
@@ -15,19 +18,27 @@ export async function updateEmailAction(formData: FormData) {
 
     const validatedData = updateEmailSchema.parse(rawData);
 
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/users`, {
-      method: 'PUT',
-      headers: {
-        ...defaultHeaders,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(validatedData),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to update email');
+    // Check if email change is allowed
+    const allowEmailChange = env.confirmEmail === false;
+    if (!allowEmailChange) {
+      throw new Error('Email change is not allowed.');
     }
+
+    // Check if email is allowed (work email validation)
+    if (!isEmailAllowed(validatedData.email)) {
+      throw new Error('Please use your work email.');
+    }
+
+    // Check if email is already in use
+    const existingUser = await getUser({ email: validatedData.email });
+    if (existingUser && existingUser.id !== user.id) {
+      throw new Error('Email already in use.');
+    }
+
+    await updateUser({
+      where: { id: user.id },
+      data: validatedData,
+    });
 
     revalidatePath('/settings/account');
 

@@ -1,4 +1,7 @@
-import { getInvitation, isInvitationExpired } from 'models/invitation';
+import {
+  getInvitation,
+  isInvitationExpired,
+} from '@/features/invitation/shared/model/invitation';
 import { NextRequest, NextResponse } from 'next/server';
 import { recordMetric } from '@/lib/metrics';
 import { ApiError } from '@/lib/errors';

@@ -65,12 +65,6 @@ const HeaderTeamDropdown = () => {
       name: '',
       items: [
         {
-          id: 'all-teams',
-          name: t('all-teams'),
-          href: '/teams',
-          icon: RectangleStackIcon,
-        },
-        {
           id: 'new-team',
           name: t('new-team'),
           href: '/teams?newTeam=true',
@@ -145,7 +139,7 @@ const HeaderTeamDropdown = () => {
             <div className="flex size-6 items-center justify-center rounded-sm border">
               <UserCircleIcon className="size-4 shrink-0" />
             </div>
-            {t('account')}
+            {t('my-account')}
           </Link>
         </DropdownMenuItem>
         {env.darkModeEnabled && (

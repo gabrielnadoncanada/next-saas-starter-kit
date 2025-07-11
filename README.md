@@ -40,12 +40,7 @@ Next.js-based SaaS starter kit saves you months of development by starting you o
   This is an open-source database toolkit. It's used for object-relational mapping, which simplifies the process of writing database queries. Prisma configuration and schema can be found in the prisma directory.
 - [TypeScript](https://www.typescriptlang.org)
   This is a typed superset of JavaScript that compiles to plain JavaScript. It's used to make the code more robust and maintainable. TypeScript definitions and configurations can be found in files like `next-env.d.ts` and `i18next.d.ts`.
-- [SAML Jackson](https://github.com/boxyhq/jackson) (Provides SAML SSO, Directory Sync)
-  This is a service for handling SAML SSO (Single Sign-On). It's used to allow users to sign in with a single ID and password to any of several related systems i.e (using a single set of credentials). The implementation of SAML Jackson is primarily located within the files associated with authentication.
-- [Svix](https://www.svix.com/) (Provides Webhook Orchestration)
-  This is a service for handling webhooks. It's used to emit events on user/team CRUD operations, which can then be caught and handled by other parts of the application or external services. The integration of Svix is distributed throughout the codebase, primarily in areas where Create, Read, Update, and Delete (CRUD) operations are executed.
-- [Retraced](https://github.com/retracedhq/retraced) (Provides Audit Logs Service)
-  This is a service for audit logging and data visibility. It helps track user activities within the application i.e (who did what and when in the application). The usage of Retraced would be dispersed throughout the codebase, likely in the files where important actions are performed.
+
 - [Stripe](https://stripe.com) (Provides Payments)
   This is a service for handling payments. It's used to process payments for the application. The integration of Stripe is likely found in the files associated with billing and subscriptions.
 - [Playwright](https://playwright.dev) (Provides E2E tests)
@@ -173,11 +168,6 @@ The default login options are email and GitHub. Configure below:
 2. For email login, configure the `SMTP_*` environment variables in the `.env` file to send magic link login emails. You can use services like [AWS SES](https://aws.amazon.com/ses/), [Sendgrid](https://sendgrid.com/) or [Resend](https://resend.com/).
 3. For social login with GitHub and Google, you need to create OAuth apps in the respective developer consoles and add the client ID and secret to the `.env` file. The default is email login and For GitHub, follow the instructions [here](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app). For Google, follow the instructions [here](https://support.google.com/cloud/answer/6158849?hl=en).
 
-### Svix Webhooks
-
-1. Create an account on [Svix](https://www.svix.com/)
-2. The authenticaton token and add `SVIX_API_KEY` to the `.env` file.
-
 ### Stripe Payments
 
 1. Create an account on [Stripe](https://stripe.com/)
@@ -191,11 +181,6 @@ The default login options are email and GitHub. Configure below:
 2. From the Key Details in the [Google Cloud Console](https://console.cloud.google.com/security/recaptcha), add the reCAPTCHA ID to the `.env` file as `RECAPTCHA_SITE_KEY`.
 3. Click Key Details > Integration then click Use legacy key to get the secret key and add it to the `.env` file as `RECAPTCHA_SECRET_KEY`.
 
-### Sentry
-
-1. Create an account on [Sentry](https://sentry.io/), skip the onboarding and create a new Next.js project.
-2. At the bottom of the page, get the DSN and add it to the `.env` file as `SENTRY_DSN`. The other variables are optional.
-
 #### Fully customizable boilerplate out of the box, see images below 👇👇👇
 
 ![saas-starter-kit-poster](/public/saas-starter-kit-poster.png)
@@ -205,7 +190,6 @@ The default login options are email and GitHub. Configure below:
 - Create account
 - Sign in with Email and Password
 - Sign in with Magic Link
-- Sign in with SAML SSO
 - Sign in with Google [[Setting up Google OAuth](https://support.google.com/cloud/answer/6158849?hl=en)]
 - Sign in with GitHub [[Creating a Github OAuth App](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app)]
 - Directory Sync (SCIM)

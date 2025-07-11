@@ -3,8 +3,8 @@ import { sendPasswordResetEmail } from '@/lib/email/sendPasswordResetEmail';
 import { ApiError } from '@/lib/errors';
 import { recordMetric } from '@/lib/metrics';
 import { validateRecaptcha } from '@/lib/recaptcha';
-import { getUser } from 'models/user';
-import { createPasswordReset } from 'models/passwordReset';
+import { getUser } from '@/shared/model/user';
+import { createPasswordReset } from '@/features/auth/shared/model/passwordReset';
 import { forgotPasswordSchema, validateWithSchema } from '@/lib/zod';
 import { NextRequest, NextResponse } from 'next/server';
 

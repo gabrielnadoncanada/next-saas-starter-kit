@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import { deleteSession, findFirstSessionOrThrown } from 'models/session';
+import {
+  deleteSession,
+  findFirstSessionOrThrown,
+} from '@/shared/model/session';
 import { validateWithSchema, deleteSessionSchema } from '@/lib/zod';
 
 export async function DELETE(

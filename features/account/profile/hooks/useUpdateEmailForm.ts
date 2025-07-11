@@ -4,6 +4,7 @@ import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import {
   updateEmailSchema,
   type UpdateEmailFormData,
@@ -20,6 +21,7 @@ export function useUpdateEmailForm({
   allowEmailChange,
 }: UseUpdateEmailFormProps) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const form = useForm<UpdateEmailFormData>({
     resolver: zodResolver(updateEmailSchema),
@@ -44,6 +46,9 @@ export function useUpdateEmailForm({
       }
 
       toast.success('Email updated successfully');
+
+      // Refresh the page to show updated data
+      router.refresh();
     });
   });
 

@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { toast } from 'react-hot-toast';
 import { deleteInvitationAction } from '@/features/invitation/manage/actions/deleteInvitation.action';
 import useInvitations from '@/features/invitation/shared/hooks/useInvitations';
-import type { TeamInvitation } from 'models/invitation';
+import type { TeamInvitation } from '@/features/invitation/shared/model/invitation';
 
 interface UsePendingInvitationsProps {
   teamSlug: string;

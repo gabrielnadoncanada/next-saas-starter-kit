@@ -1,30 +1,28 @@
 import useSWR from 'swr';
-import fetcher from '@/lib/fetcher';
-import type { ApiResponse } from 'types';
-import type { TeamInvitation } from 'models/invitation';
+import type { TeamInvitation } from '@/features/invitation/shared/model/invitation';
+import { getInvitationsAction } from '../actions/getInvitations.action';
 
 interface UseInvitationsProps {
   slug: string;
   sentViaEmail?: boolean;
 }
 
-type InvitationsResponse = ApiResponse<TeamInvitation[]>;
-
 const useInvitations = ({ slug, sentViaEmail = true }: UseInvitationsProps) => {
-  const params = new URLSearchParams();
-  if (sentViaEmail) {
-    params.append('sentViaEmail', 'true');
-  }
-
-  const { data, error, isLoading, mutate } = useSWR<InvitationsResponse>(
-    `/api/teams/${slug}/invitations?${params.toString()}`,
-    fetcher
+  const { data, error, isLoading, mutate } = useSWR(
+    `invitations-${slug}-${sentViaEmail}`,
+    async () => {
+      const result = await getInvitationsAction(slug, sentViaEmail);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    }
   );
 
   return {
     isLoading,
     isError: error,
-    invitations: data?.data || [],
+    invitations: data || [],
     mutateInvitation: mutate,
   };
 };

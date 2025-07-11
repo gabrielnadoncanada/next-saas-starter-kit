@@ -2,14 +2,15 @@
 
 import { useUpdateNameForm } from './hooks/useUpdateNameForm';
 import { UpdateNameFormView } from './ui/UpdateNameFormView';
+import { User } from '@prisma/client';
 
 interface UpdateNameProps {
-  name: string;
+  user: User;
 }
 
-export function UpdateName({ name }: UpdateNameProps) {
-  const { form, handleSubmit, isPending, currentName } = useUpdateNameForm({
-    initialName: name,
+export function UpdateName({ user }: UpdateNameProps) {
+  const { form, handleSubmit, isPending } = useUpdateNameForm({
+    user,
   });
 
   return (
@@ -17,7 +18,6 @@ export function UpdateName({ name }: UpdateNameProps) {
       form={form}
       onSubmit={handleSubmit}
       isPending={isPending}
-      currentName={currentName}
     />
   );
 }

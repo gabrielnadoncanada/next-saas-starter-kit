@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
 import { updateNameSchema } from '@/features/account/shared/schema/account.schema';
-import { defaultHeaders } from '@/lib/common';
+import { updateUser } from '@/shared/model/user';
 
 export async function updateNameAction(formData: FormData) {
   try {
@@ -15,19 +15,10 @@ export async function updateNameAction(formData: FormData) {
 
     const validatedData = updateNameSchema.parse(rawData);
 
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/users`, {
-      method: 'PUT',
-      headers: {
-        ...defaultHeaders,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(validatedData),
+    await updateUser({
+      where: { id: user.id },
+      data: validatedData,
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to update name');
-    }
 
     revalidatePath('/settings/account');
 

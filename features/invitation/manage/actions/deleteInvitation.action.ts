@@ -2,8 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
-import { getTeam } from 'models/team';
-import { defaultHeaders } from '@/lib/common';
+import { getTeam } from '@/features/team/shared/model/team';
+import {
+  deleteInvitation,
+  getInvitation,
+} from '@/features/invitation/shared/model/invitation';
+import { throwIfNotAllowed } from '@/shared/model/user';
+import { getTeamMember } from '@/features/team/shared/model/team';
 
 export async function deleteInvitationAction(
   teamSlug: string,
@@ -13,20 +18,19 @@ export async function deleteInvitationAction(
     const user = await getCurrentUser();
     const team = await getTeam({ slug: teamSlug });
 
-    const sp = new URLSearchParams({ id: invitationId });
+    // Check if user has permission to delete invitations
+    const currentUserMember = await getTeamMember(user.id, teamSlug);
+    throwIfNotAllowed(currentUserMember, 'team_invitation', 'delete');
 
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/teams/${teamSlug}/invitations?${sp.toString()}`,
-      {
-        method: 'DELETE',
-        headers: defaultHeaders,
-      }
-    );
+    // Verify the invitation exists and belongs to the team
+    const invitation = await getInvitation({ id: invitationId });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to delete invitation');
+    if (invitation.teamId !== team.id) {
+      throw new Error('Invitation not found or access denied');
     }
+
+    // Delete the invitation
+    await deleteInvitation({ id: invitationId });
 
     revalidatePath(`/teams/${teamSlug}/members`);
 

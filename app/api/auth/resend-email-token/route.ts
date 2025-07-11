@@ -1,7 +1,7 @@
 import { sendVerificationEmail } from '@/lib/email/sendVerificationEmail';
 import { ApiError } from '@/lib/errors';
-import { getUser } from 'models/user';
-import { createVerificationToken } from 'models/verificationToken';
+import { getUser } from '@/shared/model/user';
+import { createVerificationToken } from '@/features/auth/shared/model/verificationToken';
 import { resendEmailToken, validateWithSchema } from '@/lib/zod';
 import { NextRequest, NextResponse } from 'next/server';
 

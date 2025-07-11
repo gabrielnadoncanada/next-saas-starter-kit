@@ -6,8 +6,8 @@ import { recordMetric } from '@/lib/metrics';
 import { cookies } from 'next/headers';
 import { sessionTokenCookieName } from '@/lib/nextAuth';
 import env from '@/lib/env';
-import { findFirstUserOrThrow, updateUser } from 'models/user';
-import { deleteManySessions } from 'models/session';
+import { findFirstUserOrThrow, updateUser } from '@/shared/model/user';
+import { deleteManySessions } from '@/shared/model/session';
 import { validateWithSchema, updatePasswordSchema } from '@/lib/zod';
 
 export async function PUT(request: NextRequest) {

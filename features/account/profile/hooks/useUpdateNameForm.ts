@@ -1,40 +1,32 @@
 'use client';
 
-import { useTransition, useState, useEffect } from 'react';
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-hot-toast';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
   updateNameSchema,
   type UpdateNameFormData,
 } from '@/features/account/shared/schema/account.schema';
 import { updateNameAction } from '../actions/updateName.action';
+import { User } from '@prisma/client';
 
 interface UseUpdateNameFormProps {
-  initialName: string;
+  user: User;
 }
 
-export function useUpdateNameForm({ initialName }: UseUpdateNameFormProps) {
+export function useUpdateNameForm({ user }: UseUpdateNameFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [currentName, setCurrentName] = useState(initialName);
-  const { update } = useSession();
   const router = useRouter();
 
   const form = useForm<UpdateNameFormData>({
     resolver: zodResolver(updateNameSchema),
     defaultValues: {
-      name: currentName,
+      name: user.name,
     },
     mode: 'onChange',
   });
-
-  // Update local state when prop changes
-  useEffect(() => {
-    setCurrentName(initialName);
-    form.reset({ name: initialName });
-  }, [initialName, form]);
 
   const handleSubmit = form.handleSubmit((values) => {
     startTransition(async () => {
@@ -48,18 +40,9 @@ export function useUpdateNameForm({ initialName }: UseUpdateNameFormProps) {
         return;
       }
 
-      // Update the session with the new name
-      await update({ name: values.name });
-
-      // Update local state immediately to reflect the change in UI
-      setCurrentName(values.name);
-
-      // Reset the form to mark it as not dirty since we've successfully updated
-      form.reset({ name: values.name });
-
       toast.success('Name updated successfully');
 
-      // Refresh the page to update all components with the new session data
+      // Refresh the page to show updated data
       router.refresh();
     });
   });
@@ -68,6 +51,5 @@ export function useUpdateNameForm({ initialName }: UseUpdateNameFormProps) {
     form,
     handleSubmit,
     isPending,
-    currentName,
   };
 }

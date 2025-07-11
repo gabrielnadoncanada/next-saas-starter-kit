@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripeCustomerId } from '@/lib/stripe';
-import { getTeamMember } from 'models/team';
-import { getAllServices } from 'models/service';
-import { getAllPrices } from 'models/price';
-import { getByCustomerId } from 'models/subscription';
+import { getTeamMember } from '@/features/team/shared/model/team';
+import { getAllServices } from '@/features/billing/shared/model/service';
+import { getAllPrices } from '@/features/billing/shared/model/price';
+import { getByCustomerId } from '@/features/billing/shared/model/subscription';
 import { getServerSession } from 'next-auth/next';
 import { getAuthOptions } from '@/lib/nextAuth';
 import env from '@/lib/env';

@@ -1,5 +1,5 @@
 import { permissions } from '@/lib/permissions';
-import { getTeamMember } from 'models/team';
+import { getTeamMember } from '@/features/team/shared/model/team';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { getAuthOptions } from '@/lib/nextAuth';

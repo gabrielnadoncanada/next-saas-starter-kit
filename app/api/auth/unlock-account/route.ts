@@ -1,6 +1,6 @@
-import { getUser } from 'models/user';
+import { getUser } from '@/shared/model/user';
 import { ApiError } from '@/lib/errors';
-import { deleteVerificationToken } from 'models/verificationToken';
+import { deleteVerificationToken } from '@/features/auth/shared/model/verificationToken';
 import { isAccountLocked, sendLockoutEmail } from '@/lib/accountLock';
 import { resendLinkRequestSchema, validateWithSchema } from '@/lib/zod';
 import { NextRequest, NextResponse } from 'next/server';

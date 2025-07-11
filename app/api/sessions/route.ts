@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getSession } from '@/lib/session';
 import { sessionTokenCookieName } from '@/lib/nextAuth';
-import { findManySessions } from 'models/session';
+import { findManySessions } from '@/shared/model/session';
 
 export async function GET(request: NextRequest) {
   try {

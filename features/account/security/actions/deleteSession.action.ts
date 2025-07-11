@@ -2,22 +2,29 @@
 
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
+import {
+  deleteSession,
+  findFirstSessionOrThrown,
+} from '@/shared/model/session';
 
 export async function deleteSessionAction(sessionId: string) {
   try {
     const user = await getCurrentUser();
 
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/sessions/${sessionId}`,
-      {
-        method: 'DELETE',
-      }
-    );
+    // Verify the session belongs to the current user
+    await findFirstSessionOrThrown({
+      where: {
+        id: sessionId,
+        userId: user.id,
+      },
+    });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to delete session');
-    }
+    // Delete the session
+    await deleteSession({
+      where: {
+        id: sessionId,
+      },
+    });
 
     revalidatePath('/settings/security');
 

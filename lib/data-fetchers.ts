@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { permissions } from '@/lib/permissions';
+import { getUser } from '@/shared/model/user';
 
 // Get current user session or redirect to login
 export async function getCurrentUser() {
@@ -13,6 +14,23 @@ export async function getCurrentUser() {
   }
 
   return session.user;
+}
+
+// Get current user with full database record
+export async function getCurrentUserWithData() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    redirect('/auth/login');
+  }
+
+  const user = await getUser({ id: session.user.id });
+
+  if (!user) {
+    redirect('/auth/login');
+  }
+
+  return user;
 }
 
 // Get all teams for current user

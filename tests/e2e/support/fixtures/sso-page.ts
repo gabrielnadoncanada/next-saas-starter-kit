@@ -157,16 +157,7 @@ export class SSOPage {
         'http://localhost:3366/login/saml'
       );
     }
-    if (type === 'saml') {
-      if (process.env.JACKSON_URL) {
-        // fetch the data from metadata url
-        const response = await fetch(metadataUrl!);
-        const data = await response.text();
-        await this.metadataRawInput.fill(data);
-      } else {
-        await this.metadataUrlInput.fill(metadataUrl!);
-      }
-    }
+
     if (type === 'oidc') {
       // Enter the OIDC client credentials for mocklab in the form
       await this.oidcClientIdInput.fill(oidcClientId ?? MOCKLAB_CLIENT_ID);
@@ -275,16 +266,7 @@ export class SSOPage {
     await this.page.getByPlaceholder('user@boxyhq.com').fill(email);
     await this.page.getByRole('button', { name: 'Continue with SSO' }).click();
   }
-  async signInWithMockSAML(
-    mocksamlOrigin: string,
-    mocksamlBtnName: string,
-    userName: string
-  ) {
-    // Perform sign in at mocksaml
-    await this.page.waitForURL((url) => url.origin === mocksamlOrigin);
-    await this.page.getByPlaceholder('jackson').fill(userName);
-    await this.page.getByRole('button', { name: mocksamlBtnName }).click();
-  }
+
   async selectIdP(name: string, index: number = -1) {
     await this.page.waitForURL((url) => url.pathname === '/idp/select');
     const idpSelectionTitle = 'Select an Identity Provider to continue';

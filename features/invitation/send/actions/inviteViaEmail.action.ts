@@ -2,9 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
-import { getTeam } from 'models/team';
+import { getTeam } from '@/features/team/shared/model/team';
 import { inviteViaEmailSchema } from '@/features/invitation/shared/schema/invitation.schema';
-import { defaultHeaders } from '@/lib/common';
+import { createInvitation } from '@/features/invitation/shared/model/invitation';
+import { sendTeamInviteEmail } from '@/lib/email/sendTeamInviteEmail';
+import { throwIfNotAllowed } from '@/shared/model/user';
+import { getTeamMember } from '@/features/team/shared/model/team';
+import { Role } from '@prisma/client';
 
 export async function inviteViaEmailAction(
   teamSlug: string,
@@ -14,6 +18,10 @@ export async function inviteViaEmailAction(
     const user = await getCurrentUser();
     const team = await getTeam({ slug: teamSlug });
 
+    // Check if user has permission to invite members
+    const currentUserMember = await getTeamMember(user.id, teamSlug);
+    throwIfNotAllowed(currentUserMember, 'team_invitation', 'create');
+
     const rawData = {
       email: formData.get('email') as string,
       role: formData.get('role') as string,
@@ -21,26 +29,18 @@ export async function inviteViaEmailAction(
 
     const validatedData = inviteViaEmailSchema.parse(rawData);
 
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/teams/${teamSlug}/invitations`,
-      {
-        method: 'POST',
-        headers: {
-          ...defaultHeaders,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: validatedData.email,
-          role: validatedData.role,
-          sentViaEmail: true,
-        }),
-      }
-    );
+    // Create the invitation
+    const invitation = await createInvitation({
+      teamId: team.id,
+      email: validatedData.email,
+      role: validatedData.role as Role,
+      sentViaEmail: true,
+      allowedDomains: [],
+      invitedBy: user.id,
+    });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to send invitation');
-    }
+    // Send invitation email
+    await sendTeamInviteEmail(team, invitation);
 
     revalidatePath(`/teams/${teamSlug}/members`);
 

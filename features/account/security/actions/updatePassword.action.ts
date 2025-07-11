@@ -3,7 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
 import { updatePasswordSchema } from '@/features/account/shared/schema/account.schema';
-import { defaultHeaders } from '@/lib/common';
+import { hashPassword, verifyPassword } from '@/lib/auth-utils';
+import { findFirstUserOrThrow, updateUser } from '@/shared/model/user';
+import { deleteManySessions } from '@/shared/model/session';
+import { cookies } from 'next/headers';
+import { sessionTokenCookieName } from '@/lib/nextAuth';
+import env from '@/lib/env';
 
 export async function updatePasswordAction(formData: FormData) {
   try {
@@ -16,18 +21,40 @@ export async function updatePasswordAction(formData: FormData) {
 
     const validatedData = updatePasswordSchema.parse(rawData);
 
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/password`, {
-      method: 'PUT',
-      headers: {
-        ...defaultHeaders,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(validatedData),
+    // Get the full user data to verify current password
+    const fullUser = await findFirstUserOrThrow({
+      where: { id: user.id },
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to update password');
+    // Verify current password
+    if (
+      !(await verifyPassword(
+        validatedData.currentPassword,
+        fullUser.password as string
+      ))
+    ) {
+      throw new Error('Your current password is incorrect');
+    }
+
+    // Update password
+    await updateUser({
+      where: { id: user.id },
+      data: { password: await hashPassword(validatedData.newPassword) },
+    });
+
+    // Remove all sessions other than the current one
+    if (env.nextAuth.sessionStrategy === 'database') {
+      const cookieStore = await cookies();
+      const sessionToken = cookieStore.get(sessionTokenCookieName)?.value;
+
+      await deleteManySessions({
+        where: {
+          userId: user.id,
+          NOT: {
+            sessionToken,
+          },
+        },
+      });
     }
 
     revalidatePath('/settings/security');

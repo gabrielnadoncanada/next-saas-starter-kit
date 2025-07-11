@@ -15,9 +15,9 @@ import { encode, decode } from 'next-auth/jwt';
 import { randomUUID } from 'crypto';
 
 import { Role } from '@prisma/client';
-import { getAccount } from 'models/account';
-import { addTeamMember, getTeam } from 'models/team';
-import { createUser, getUser } from 'models/user';
+import { getAccount } from '@/features/account/shared/model/account';
+import { addTeamMember, getTeam } from '@/features/team/shared/model/team';
+import { createUser, getUser } from '@/shared/model/user';
 import { verifyPassword } from '@/lib/auth-utils';
 import { isEmailAllowed } from '@/lib/email/utils';
 import env from '@/lib/env';

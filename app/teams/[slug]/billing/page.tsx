@@ -5,10 +5,11 @@ import { BillingServerContainer } from '@/features/billing';
 import type { TeamFeature } from 'types';
 
 interface PaymentsProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default async function Payments({ params }: PaymentsProps) {
+export default async function Payments(props: PaymentsProps) {
+  const params = await props.params;
   const teamFeatures: TeamFeature = env.teamFeatures;
 
   // Redirect if payments feature is not enabled

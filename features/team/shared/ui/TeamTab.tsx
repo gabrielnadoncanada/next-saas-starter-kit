@@ -61,18 +61,6 @@ export function TeamTab({
   }
 
   if (
-    teamFeatures.dsync &&
-    canAccess('team_dsync', ['create', 'update', 'read', 'delete'])
-  ) {
-    navigations.push({
-      name: 'Directory Sync',
-      value: 'directory-sync',
-      href: `/teams/${team.slug}/directory-sync`,
-      icon: UserPlusIcon,
-    });
-  }
-
-  if (
     teamFeatures.payments &&
     canAccess('team_billing', ['create', 'update', 'read', 'delete'])
   ) {
@@ -81,30 +69,6 @@ export function TeamTab({
       value: 'payments',
       href: `/teams/${team.slug}/billing`,
       icon: BanknotesIcon,
-    });
-  }
-
-  if (
-    teamFeatures.webhook &&
-    canAccess('team_webhook', ['create', 'update', 'read', 'delete'])
-  ) {
-    navigations.push({
-      name: 'Webhooks',
-      value: 'webhooks',
-      href: `/teams/${team.slug}/webhooks`,
-      icon: PaperAirplaneIcon,
-    });
-  }
-
-  if (
-    teamFeatures.apiKey &&
-    canAccess('team_api_key', ['create', 'update', 'read', 'delete'])
-  ) {
-    navigations.push({
-      name: 'API Keys',
-      value: 'api-keys',
-      href: `/teams/${team.slug}/api-keys`,
-      icon: KeyIcon,
     });
   }
 

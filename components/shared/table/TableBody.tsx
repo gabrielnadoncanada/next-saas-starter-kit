@@ -2,6 +2,12 @@ import { TableCell, TableRow } from '@/lib/components/ui/table';
 import { Button } from '@/lib/components/ui/button';
 import { Badge } from '@/lib/components/ui/badge';
 import { useTranslations } from 'next-intl';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/lib/components/ui/tooltip';
 
 interface TableBodyCell {
   wrap?: boolean;
@@ -11,6 +17,8 @@ interface TableBodyCell {
     text: string;
     color?: string;
     onClick: () => void;
+    disabled?: boolean;
+    tooltip?: string;
   }[];
   badge?: {
     text: string;
@@ -69,20 +77,38 @@ export const TableBody = ({
                   }
                 >
                   {!cell.buttons || cell.buttons?.length === 0 ? null : (
-                    <div className="flex space-x-2">
-                      {cell.buttons?.map((button: any, index: number) => {
-                        return (
-                          <Button
-                            key={row.id + '-button-' + index}
-                            size="sm"
-                            variant="outline"
-                            onClick={button.onClick}
-                          >
-                            {button.text}
-                          </Button>
-                        );
-                      })}
-                    </div>
+                    <TooltipProvider>
+                      <div className="flex space-x-2">
+                        {cell.buttons?.map((button: any, index: number) => {
+                          const buttonElement = (
+                            <Button
+                              key={row.id + '-button-' + index}
+                              size="sm"
+                              variant="outline"
+                              onClick={button.onClick}
+                              disabled={button.disabled}
+                            >
+                              {button.text}
+                            </Button>
+                          );
+
+                          if (button.tooltip) {
+                            return (
+                              <Tooltip key={row.id + '-tooltip-' + index}>
+                                <TooltipTrigger asChild>
+                                  {buttonElement}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{button.tooltip}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            );
+                          }
+
+                          return buttonElement;
+                        })}
+                      </div>
+                    </TooltipProvider>
                   )}
                   {!cell.actions || cell.actions?.length === 0 ? null : (
                     <span className="flex gap-3">

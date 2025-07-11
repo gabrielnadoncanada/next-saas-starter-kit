@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { recordMetric } from '@/lib/metrics';
 import { ApiError } from '@/lib/errors';
 import env from '@/lib/env';
-import { getUser, updateUser } from 'models/user';
+import { getUser, updateUser } from '@/shared/model/user';
 import { isEmailAllowed } from '@/lib/email/utils';
 import { updateAccountSchema, validateWithSchema } from '@/lib/zod';
 
@@ -35,6 +35,8 @@ export async function PUT(request: NextRequest) {
         throw new ApiError(400, 'Email already in use.');
       }
     }
+
+    console.log(data);
 
     await updateUser({
       where: { id: session.user.id },

@@ -3,6 +3,7 @@
 import { toast } from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
 import useTeam from 'hooks/useTeam';
+import { createCheckoutSessionAction } from '../actions/createCheckoutSession.action';
 
 export function usePayment() {
   const { team } = useTeam();
@@ -15,27 +16,21 @@ export function usePayment() {
     }
 
     try {
-      const res = await fetch(
-        `/api/teams/${team.slug}/payments/create-checkout-session`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ price, quantity }),
-        }
+      const result = await createCheckoutSessionAction(
+        team.slug,
+        price,
+        quantity
       );
 
-      const data = await res.json();
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
 
-      if (data?.data?.url) {
-        window.open(data.data.url, '_blank', 'noopener,noreferrer');
+      if (result.data?.url) {
+        window.open(result.data.url, '_blank', 'noopener,noreferrer');
       } else {
-        toast.error(
-          data?.error?.message ||
-            data?.error?.raw?.message ||
-            t('stripe-checkout-fallback-error')
-        );
+        toast.error(t('stripe-checkout-fallback-error'));
       }
     } catch (error) {
       toast.error(t('stripe-checkout-fallback-error'));

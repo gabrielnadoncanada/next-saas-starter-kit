@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
-import { getTeam, deleteTeam } from 'models/team';
+import { getTeam, deleteTeam } from '@/features/team/shared/model/team';
 
 export async function deleteTeamAction(teamSlug: string) {
   try {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
-import { getTeam } from 'models/team';
+import { getTeam, isLastOwnerOfTeam } from '@/features/team/shared/model/team';
 import { Role } from '@prisma/client';
 import { validateMembershipOperation } from '@/lib/rbac';
 import { prisma } from '@/lib/prisma';
@@ -38,6 +38,18 @@ export async function updateMemberRoleAction(
     await validateMembershipOperation(memberId, currentUserMember, {
       role: newRole,
     });
+
+    // Check if trying to demote the last owner
+    if (newRole !== Role.OWNER) {
+      const isLastOwner = await isLastOwnerOfTeam(memberId, team.id);
+
+      if (isLastOwner) {
+        return {
+          error:
+            'Cannot change the role of the last owner. Please transfer ownership to another member first.',
+        };
+      }
+    }
 
     // Update the member's role
     await prisma.teamMember.update({

@@ -1,6 +1,8 @@
-import { getApiKeyById } from 'models/apiKey';
+// API Key feature has been removed
 import { ApiError } from '../errors';
 
+// This function is disabled because API key feature has been removed
+/*
 export const throwIfNoAccessToApiKey = async (
   apiKeyId: string,
   teamId: string
@@ -18,3 +20,4 @@ export const throwIfNoAccessToApiKey = async (
     );
   }
 };
+*/

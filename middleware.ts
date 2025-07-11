@@ -38,7 +38,6 @@ const generateCSP = (): string => {
       '*.google.com',
       '*.gstatic.com',
       'boxyhq.com',
-      '*.ingest.sentry.io',
       '*.mixpanel.com',
     ],
     'frame-src': ["'self'", '*.google.com', '*.gstatic.com'],

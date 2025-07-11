@@ -38,9 +38,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# Sentry
-.sentryclirc
-
 .env
 
 # Tests
@@ -53,8 +50,6 @@ yarn-error.log*
 .eslintcache
 
 .vscode
-# Sentry Config File
-.sentryclirc
 
 .vercel
 .env*.local

@@ -1,8 +1,8 @@
-import { updateUser } from 'models/user';
+import { updateUser } from '@/shared/model/user';
 import {
   deleteVerificationToken,
   getVerificationToken,
-} from 'models/verificationToken';
+} from '@/features/auth/shared/model/verificationToken';
 import { redirect } from 'next/navigation';
 
 interface VerifyEmailTokenProps {

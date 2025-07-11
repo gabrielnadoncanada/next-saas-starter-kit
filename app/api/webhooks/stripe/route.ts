@@ -7,8 +7,8 @@ import {
   deleteStripeSubscription,
   getBySubscriptionId,
   updateStripeSubscription,
-} from 'models/subscription';
-import { getByCustomerId } from 'models/team';
+} from '@/features/billing/shared/model/subscription';
+import { getByCustomerId } from '@/features/team/shared/model/team';
 
 const relevantEvents: Stripe.Event.Type[] = [
   'customer.subscription.created',

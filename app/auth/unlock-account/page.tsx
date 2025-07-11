@@ -2,9 +2,9 @@ import {
   deleteVerificationToken,
   getVerificationToken,
   isVerificationTokenExpired,
-} from 'models/verificationToken';
+} from '@/features/auth/shared/model/verificationToken';
 import { unlockAccount } from '@/lib/accountLock';
-import { getUser } from 'models/user';
+import { getUser } from '@/shared/model/user';
 import { redirect } from 'next/navigation';
 import { AuthLayout } from '@/components/layouts';
 import UnlockAccountClient from './UnlockAccountClient';

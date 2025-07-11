@@ -7,10 +7,11 @@ import { getTeamWithMembers } from '@/lib/data-fetchers';
 import type { TeamFeature } from 'types';
 
 interface TeamMembersProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default async function TeamMembers({ params }: TeamMembersProps) {
+export default async function TeamMembers(props: TeamMembersProps) {
+  const params = await props.params;
   const teamFeatures: TeamFeature = env.teamFeatures;
 
   try {

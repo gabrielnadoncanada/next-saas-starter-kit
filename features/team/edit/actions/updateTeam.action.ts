@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/data-fetchers';
-import { getTeam, updateTeam } from 'models/team';
+import { getTeam, updateTeam } from '@/features/team/shared/model/team';
 import { updateTeamSchema } from '@/lib/zod';
 
 export async function updateTeamAction(teamSlug: string, formData: FormData) {

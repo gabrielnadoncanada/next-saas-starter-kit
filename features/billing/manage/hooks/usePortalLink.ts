@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { defaultHeaders } from '@/lib/common';
-import type { ApiResponse } from 'types';
+import { createPortalLinkAction } from '../actions/createPortalLink.action';
 
 interface UsePortalLinkProps {
   teamSlug: string;
@@ -16,24 +15,21 @@ export function usePortalLink({ teamSlug }: UsePortalLinkProps) {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `/api/teams/${teamSlug}/payments/create-portal-link`,
-        {
-          method: 'POST',
-          headers: defaultHeaders,
-          credentials: 'same-origin',
-        }
-      );
+      const result = await createPortalLinkAction(teamSlug);
 
-      const result = (await response.json()) as ApiResponse<{ url: string }>;
-
-      if (!response.ok) {
-        toast.error(result.error.message);
+      if (result.error) {
+        toast.error(result.error);
+        setLoading(false);
         return;
       }
 
+      if (result.data?.url) {
+        window.open(result.data.url, '_blank', 'noopener,noreferrer');
+      } else {
+        toast.error('Failed to open billing portal');
+      }
+
       setLoading(false);
-      window.open(result.data.url, '_blank', 'noopener,noreferrer');
     } catch (error) {
       setLoading(false);
       toast.error('Failed to open billing portal');

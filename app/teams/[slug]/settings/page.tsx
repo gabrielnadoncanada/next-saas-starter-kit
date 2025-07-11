@@ -6,12 +6,13 @@ import env from '@/lib/env';
 import type { TeamFeature } from 'types';
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export default async function Settings({ params }: Props) {
+export default async function Settings(props: Props) {
+  const params = await props.params;
   const team = await getTeamBySlug(params.slug);
 
   if (!team) {
@@ -24,7 +25,7 @@ export default async function Settings({ params }: Props) {
     <>
       <TeamTab activeTab="settings" team={team} teamFeatures={teamFeatures} />
       <div className="space-y-6">
-        <EditTeam teamSlug={team.slug} />
+        <EditTeam team={team} />
         <AccessControl resource="team" actions={['delete']}>
           <DeleteTeam
             teamSlug={team.slug}

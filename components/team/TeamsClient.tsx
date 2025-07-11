@@ -11,6 +11,7 @@ import ConfirmationDialog from '../shared/ConfirmationDialog';
 import { CreateTeam } from '@/features/team';
 import { Table } from '@/components/shared/table/Table';
 import { leaveTeamAction } from '@/features/member';
+import { useLastOwnerStatus } from '@/hooks/useLastOwnerStatus';
 
 interface TeamsClientProps {
   teams: any[];
@@ -25,6 +26,10 @@ const TeamsClient = ({ teams: initialTeams }: TeamsClientProps) => {
   const [askConfirmation, setAskConfirmation] = useState(false);
   const [createTeamVisible, setCreateTeamVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const { lastOwnerTeams, isLoading: isCheckingOwnership } = useLastOwnerStatus(
+    { teams }
+  );
 
   const newTeam = searchParams.get('newTeam');
 
@@ -99,17 +104,30 @@ const TeamsClient = ({ teams: initialTeams }: TeamsClientProps) => {
                       text: new Date(team.createdAt).toDateString(),
                     },
                     {
-                      buttons: [
-                        {
-                          color: 'error',
-                          text: t('leave-team'),
-                          disabled: isPending,
-                          onClick: () => {
-                            setTeam(team);
-                            setAskConfirmation(true);
-                          },
-                        },
-                      ],
+                      buttons: lastOwnerTeams.has(team.id)
+                        ? [
+                            {
+                              color: 'error',
+                              text: t('transfer-ownership'),
+                              disabled: isPending || isCheckingOwnership,
+                              tooltip: t('last-owner-cannot-leave'),
+                              onClick: () => {
+                                // Navigate to members page to transfer ownership
+                                router.push(`/teams/${team.slug}/members`);
+                              },
+                            },
+                          ]
+                        : [
+                            {
+                              color: 'error',
+                              text: t('leave-team'),
+                              disabled: isPending || isCheckingOwnership,
+                              onClick: () => {
+                                setTeam(team);
+                                setAskConfirmation(true);
+                              },
+                            },
+                          ],
                     },
                   ],
                 };
